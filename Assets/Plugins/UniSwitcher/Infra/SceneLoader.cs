@@ -136,6 +136,7 @@ namespace UniSwitcher.Infra
             }
         }
 
+        /// <inheritdoc cref="ISceneLoader.AddProgressUpdateDelegate"/>
         public void AddProgressUpdateDelegate(OnProgressUpdateDelegate @delegate)
         {
             _progressUpdateDelegates += @delegate;

@@ -1,9 +1,8 @@
+using System;
 using UniSwitcher.Infra;
 
 namespace UniSwitcher.Domain
 {
-    using System;
-
     /// <summary>
     /// Interface for Data Loader
     /// If any data is passed on scene switching, these methods will be called from <see cref="BootStrapper"/>.

@@ -2,7 +2,7 @@ using System;
 using UniSwitcher.Domain;
 using UnityEngine;
 
-namespace UniSwitcher
+namespace UniSwitcher.Sample
 {
     /// <summary>
     /// Sample Transition Background
