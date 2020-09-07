@@ -11,19 +11,23 @@ Versions are the earliest ones I personally known to work, but it is possible th
 * [Extenject](https://github.com/svermeulen/Extenject) v9.1.0
 * [UniTask](https://github.com/Cysharp/UniTask) v2.0.31
 
+# See it in action
+
+Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity`.
+
 # Basic usages
 
-## Scene change
-
-Start from 3. if you already use Zenject/Extenject.
+## Not using Zenject / Extenject?
 
 1. In all the scenes, **place `Scene Context`** provided by Extenject
 
 2. **[Create `Project Context`](https://github.com/modesttree/Zenject#global-bindings-using-project-context)** in `Resources` folder.
 
-3. **Attach `UniSwitcherInstaller`** to that `Project Context` you just added, and **place that installer in `Mono Installers` list.**
+## Scene change
 
-4. **Copy the following** into a new file. This creates a class which implements `UniSwitcher.Domain.IScene`.
+1. **Attach `UniSwitcherInstaller`** to `Project Context`. **Place that installer in `Mono Installers` list.**
+
+2. **Copy the following** into a new file. This creates a class which implements `UniSwitcher.Domain.IScene`.
   ```csharp
   using UniSwitcher.Domain;
   public MyScene: IScene {
@@ -38,9 +42,9 @@ Start from 3. if you already use Zenject/Extenject.
   }
   ```
 
-  ***At this point, your project is fully ready to use UniSwithcer!***
+  ***:tada: At this point, your project is fully ready to use UniSwitcher!***
 
-4. **Create a class extending `UniSwitcher.Switcher`,** which also extends `MonoBehaviour`.
+3. **Create a class extending `UniSwitcher.Switcher`,** which also extends `MonoBehaviour`.
   ```csharp
   using UniSwitcher.Switcher;
   public Sample: Switcher
@@ -49,7 +53,7 @@ Start from 3. if you already use Zenject/Extenject.
   }
   ```
 
-5. In this class, you can **call `PerformSceneTransition`.**  
+4. In this class, you can **call `PerformSceneTransition`.**  
   The most basic usage is to pass `ChangeScene(new MyScene("Assets/path/to/scene.unity"))`.
   ```csharp
   public Sample: Switcher
@@ -61,7 +65,7 @@ Start from 3. if you already use Zenject/Extenject.
   }
   ```
 
-Observe that the scene changes to the one you specified!
+  ***:tada: Observe that the scene changes to the one you specified!***
 
 ## Scene change & data transfer
 
@@ -91,7 +95,7 @@ First, follow everything in the previous section.
   {
     public void Load(ISceneData data)
     {
-      Debug.Log(data as SampleData);
+      Debug.Log(((SampleData) data).Answer);
     }
     public bool Validate(ISceneData data)
     {
