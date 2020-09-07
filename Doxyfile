@@ -1,0 +1,5 @@
+PROJECT_NAME="UniSwitcher"
+OUTPUT_DIRECTORY="documentation"
+INPUT="Assets/Plugins/UniSwitcher"
+RECURSIVE=YES
+
