@@ -5,11 +5,22 @@ using Zenject;
 
 namespace UniSwitcher
 {
+    /// <summary>
+    /// Zenject installer for UniSwitcher
+    /// </summary>
     public class UniSwitcherInstaller : MonoInstaller
     {
+        /// <summary>
+        /// Must have <see cref="ISceneLoader"/> implementation attached.
+        /// </summary>
         public GameObject sceneLoaderPrefab;
+        
+        /// <summary>
+        /// Must have <see cref="ITransitionBackgroundController"/> implementation attached. Can be null.
+        /// </summary>
         public GameObject transitionBackgroundPrefab;
 
+        /// <inheritdoc cref="MonoInstaller.InstallBindings"/>
         public override void InstallBindings()
         {
             Container

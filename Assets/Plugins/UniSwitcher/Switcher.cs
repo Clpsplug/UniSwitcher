@@ -9,14 +9,23 @@ using Zenject;
 
 namespace UniSwitcher
 {
+    /// <summary>
+    /// Base <see cref="MonoBehaviour"/> for changing scene
+    /// </summary>
     public abstract class Switcher : MonoBehaviour
     {
+        /// <summary>
+        /// Assign to activate the progress bar on transition.
+        /// </summary>
         [SerializeField] [Tooltip("Can be null. If your scene have one, assign it here.")]
         protected ProgressDisplayController sceneProgressBarController = default;
 
 #pragma warning disable 649
         [Inject] private IBootStrapper _bootStrapper;
         [Inject] private ISceneLoader _sceneLoader;
+        /// <summary>
+        /// Transition background
+        /// </summary>
         [Inject] protected ITransitionBackgroundController TransitionBackgroundController;
 #pragma warning restore 649
 
@@ -178,33 +187,53 @@ namespace UniSwitcher
             }
         }
 
+        /// <summary>
+        /// Unload additive scene. Will fail if this is the only scene currently loaded
+        /// </summary>
+        /// <param name="target"></param>
         protected void UnloadScene(IScene target)
         {
             _sceneLoader.UnloadScene(target);
         }
 
+        /// <summary>
+        /// Adds <see cref="SceneManager.activeSceneChanged"/> delegate.
+        /// </summary>
+        /// <param name="delegate"></param>
         protected void AddChangeSceneDelegate(UnityAction<Scene, Scene> @delegate)
         {
             _sceneLoader.AddChangeDelegate(@delegate);
         }
 
+        /// <summary>
+        /// Removes <see cref="SceneManager.activeSceneChanged"/> delegate.
+        /// </summary>
+        /// <param name="delegate"></param>
         protected void RemoveChangeSceneDelegate(UnityAction<Scene, Scene> @delegate)
         {
             _sceneLoader.RemoveChangeDelegate(@delegate);
         }
 
+        /// <summary>
+        /// Adds <see cref="SceneManager.sceneLoaded"/> delegate.
+        /// </summary>
+        /// <param name="delegate"></param>
         protected void AddSceneLoadedDelegate(UnityAction<Scene, LoadSceneMode> @delegate)
         {
             _sceneLoader.AddSceneLoadedDelegate(@delegate);
         }
 
+        /// <summary>
+        /// Removes <see cref="SceneManager.sceneLoaded"/> delegate.
+        /// </summary>
+        /// <param name="delegate"></param>
         protected void RemoveSceneLoadedDelegate(UnityAction<Scene, LoadSceneMode> @delegate)
         {
             _sceneLoader.RemoveSceneLoadedDelegate(@delegate);
         }
 
         /// <summary>
-        /// overrideできるようにはしているが、baseも呼ぶべき。
+        /// overridable, but should also call this as well
         /// </summary>
         protected virtual void OnDestroy()
         {
@@ -213,40 +242,43 @@ namespace UniSwitcher
     }
 
     /// <summary>
-    /// シーン遷移の設定オブジェクト
+    /// Configuration for scene transition
     /// </summary>
     public class SceneTransitionConfiguration
     {
         /// <summary>
-        /// 遷移先のシーン
+        /// Destination
         /// </summary>
         /// <remarks>Required</remarks>
         public readonly IScene DestinationScene;
 
         /// <summary>
-        /// /// Additive Loadを行うか
-        /// /// </summary>
-        /// /// <remarks>Default: false</remarks>
+        /// Additive Load or not?
+        /// </summary>
+        /// <remarks>Default: false</remarks>
         public bool IsAdditive;
 
         /// <summary>
-        /// 遷移先のシーンに渡したいデータ
-        /// /// </summary>
-        /// /// <remarks>Optional, default: null</remarks>
+        /// Data to transfer to the next scene
+        /// </summary>
+        /// <remarks>Optional, default: null</remarks>
         public ISceneData DataToTransfer;
 
         /// <summary>
-        /// /// トランジションを行うか
-        /// /// </summary>
-        /// /// <remarks>Default: false</remarks>
+        /// True if you wish to do a transition animation
+        /// </summary>
+        /// <remarks>Default: false</remarks>
         public bool PerformTransition;
 
         /// <summary>
-        /// /// シーン遷移を遅らせる長さ(秒)
-        /// /// </summary>
-        /// /// <remarks>Default: 0.0f</remarks>
+        /// time to defer transition in seconds
+        /// </summary>
+        /// <remarks>Default: 0.0f</remarks>
         public float Delay;
 
+        /// <summary>
+        /// If the progress bar should not be shown, true
+        /// </summary>
         public bool SupressProgressBar;
 
         private SceneTransitionConfiguration(IScene scene, bool additively)
@@ -256,9 +288,9 @@ namespace UniSwitcher
         }
 
         /// <summary>
-        /// 新しく設定オブジェクトを生成
+        /// Create a new configuration
         /// </summary>
-        /// <param name="scene">遷移先のシーン</param>
+        /// <param name="scene">destination</param>
         /// <param name="additively"></param>
         /// <returns><see cref="SceneTransitionConfiguration"/></returns>
         public static SceneTransitionConfiguration StartConfiguration(IScene scene, bool additively)
@@ -267,9 +299,9 @@ namespace UniSwitcher
         }
 
         /// <summary>
-        ///  遷移先に渡すデータを指定する
+        /// Set data to pass to the next scene
         /// </summary>
-        ///  <param name="data"><see cref="ISceneData"/>を実装したオブジェクト</param>
+        /// <param name="data">Object that implements <see cref="ISceneData"/></param>
         /// <returns><see cref="SceneTransitionConfiguration"/></returns>
         public SceneTransitionConfiguration AttachData(ISceneData data)
         {
@@ -278,7 +310,7 @@ namespace UniSwitcher
         }
 
         /// <summary>
-        /// トランジションを行うようにする
+        /// Enable transition animation
         /// </summary>
         /// <returns><see cref="SceneTransitionConfiguration"/></returns>
         public SceneTransitionConfiguration WithTransitionEffect()
@@ -287,6 +319,10 @@ namespace UniSwitcher
             return this;
         }
 
+        /// <summary>
+        /// Hide the progress bar even if it exists in the scene and assigned to <see cref="Switcher"/>.
+        /// </summary>
+        /// <returns></returns>
         public SceneTransitionConfiguration HideProgressBar()
         {
             SupressProgressBar = true;
@@ -294,9 +330,9 @@ namespace UniSwitcher
         }
 
         /// <summary>
-        /// 遷移までの長さを指定する
+        /// Set time before transition
         /// </summary>
-        /// <param name="seconds">秒単位</param>
+        /// <param name="seconds"></param>
         /// <returns><see cref="SceneTransitionConfiguration"/></returns>
         public SceneTransitionConfiguration After(float seconds)
         {
