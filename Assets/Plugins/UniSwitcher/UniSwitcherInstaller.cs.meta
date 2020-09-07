@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 364ef907070604c3b88f8b243d823d30
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - sceneLoaderPrefab: {fileID: 4123692637928319031, guid: 8e137778d5bbe49cd9baae19471b1415, type: 3}
+  - transitionBackgroundPrefab: {fileID: 7665747294610992991, guid: 82353ade303904d2eaaac4c2daa11c27, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
