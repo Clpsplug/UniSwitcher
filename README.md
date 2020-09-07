@@ -145,6 +145,9 @@ public MyScene: IScene {
 PerformSceneTransition(MyScene.Scene1);
 ```
 
+# License
+
+MIT license - see [LICENSE.txt](LICENSE.txt)
 
 # TODOs
 
