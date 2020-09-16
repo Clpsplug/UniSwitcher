@@ -114,7 +114,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   transitionAnimator: {fileID: 7665747294610992989}
-  mainCanvas: {fileID: 1069929502601039069}
+  selfCanvas: {fileID: 1069929502601039069}
 --- !u!95 &7665747294610992989
 Animator:
   serializedVersion: 3

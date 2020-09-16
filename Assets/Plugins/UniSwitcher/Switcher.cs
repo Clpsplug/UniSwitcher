@@ -48,24 +48,48 @@ namespace UniSwitcher
 
         /// <summary>
         /// Start the configuration as "Total scene change."
-        /// You can directly pass this into <see cref="PerformSceneTransition"/>.
+        /// You can directly pass this into <see cref="PerformSceneTransition{T}"/>.
         /// </summary>
         /// <param name="scene"></param>
         /// <returns></returns>
-        protected SceneTransitionConfiguration ChangeScene(IScene scene)
+        protected SceneTransitionConfiguration<object> ChangeScene(IScene scene)
         {
-            return SceneTransitionConfiguration.StartConfiguration(scene, false);
+            return SceneTransitionConfiguration<object>.StartConfiguration(scene, false);
+        }
+
+        /// <summary>
+        /// Start the configuration as "Total scene change," and attach data.
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        protected SceneTransitionConfiguration<T> ChangeScene<T>(IScene scene, T data)
+        {
+            return SceneTransitionConfiguration<T>.StartConfiguration(scene, false).AttachData(data);
         }
 
         /// <summary>
         /// Start the configuration as "Additive scene change."
-        /// You can directly pass this into <see cref="PerformSceneTransition"/>.
+        /// You can directly pass this into <see cref="PerformSceneTransition{T}"/>.
         /// </summary>
         /// <param name="scene"></param>
         /// <returns></returns>
-        protected SceneTransitionConfiguration AddScene(IScene scene)
+        protected SceneTransitionConfiguration<object> AddScene(IScene scene)
         {
-            return SceneTransitionConfiguration.StartConfiguration(scene, true);
+            return SceneTransitionConfiguration<object>.StartConfiguration(scene, true);
+        }
+
+        /// <summary>
+        /// Start the configuration as "Additive scene change," and attach data.
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        protected SceneTransitionConfiguration<T> AddScene<T>(IScene scene, T data)
+        {
+            return SceneTransitionConfiguration<T>.StartConfiguration(scene, true).AttachData(data);
         }
 
         /// <summary>
@@ -73,7 +97,7 @@ namespace UniSwitcher
         /// </summary>
         /// <param name="config">Using <see cref="ChangeScene"/> or <see cref="AddScene"/> is recommended.</param>
         /// <returns></returns>
-        protected async UniTask PerformSceneTransition(SceneTransitionConfiguration config)
+        protected async UniTask PerformSceneTransition<T>(SceneTransitionConfiguration<T> config)
         {
             if (config.PerformTransition && TransitionBackgroundController == null)
             {
@@ -116,11 +140,13 @@ namespace UniSwitcher
                     }
                 }
 
-                _sceneLoader.LoadScene(config.DestinationScene, config.IsAdditive);
+                _sceneLoader.LoadScene(config.DestinationScene, config.IsAdditive,
+                    config.DataToTransfer);
             }
             else
             {
-                _sceneLoader.LoadSceneWithDelay(config.DestinationScene, config.Delay, config.IsAdditive);
+                _sceneLoader.LoadSceneWithDelay(config.DestinationScene, config.Delay, config.IsAdditive,
+                    config.DataToTransfer);
                 if (config.PerformTransition && TransitionBackgroundController != null)
                 {
                     // In case of delayed transition, trigger transition 1 second before scene change
@@ -141,13 +167,11 @@ namespace UniSwitcher
             }
 
             TransitionBackgroundController?.DetectMainCamera();
-            if (config.DataToTransfer != null)
+
+            var entryPointTask = _bootStrapper.TriggerEntryPoint();
+            while (entryPointTask.Status == UniTaskStatus.Pending)
             {
-                var passTask = _bootStrapper.Pass(config.DataToTransfer);
-                while (passTask.Status == UniTaskStatus.Pending)
-                {
-                    await UniTask.Yield();
-                }
+                await UniTask.Yield();
             }
 
             if (!config.SupressProgressBar && sceneProgressBarController != null)
@@ -239,105 +263,105 @@ namespace UniSwitcher
         {
             _sceneLoader.ResetProgressUpdateDelegate();
         }
-    }
-
-    /// <summary>
-    /// Configuration for scene transition
-    /// </summary>
-    public class SceneTransitionConfiguration
-    {
-        /// <summary>
-        /// Destination
-        /// </summary>
-        /// <remarks>Required</remarks>
-        public readonly IScene DestinationScene;
 
         /// <summary>
-        /// Additive Load or not?
+        /// Configuration for scene transition
         /// </summary>
-        /// <remarks>Default: false</remarks>
-        public bool IsAdditive;
-
-        /// <summary>
-        /// Data to transfer to the next scene
-        /// </summary>
-        /// <remarks>Optional, default: null</remarks>
-        public ISceneData DataToTransfer;
-
-        /// <summary>
-        /// True if you wish to do a transition animation
-        /// </summary>
-        /// <remarks>Default: false</remarks>
-        public bool PerformTransition;
-
-        /// <summary>
-        /// time to defer transition in seconds
-        /// </summary>
-        /// <remarks>Default: 0.0f</remarks>
-        public float Delay;
-
-        /// <summary>
-        /// If the progress bar should not be shown, true
-        /// </summary>
-        public bool SupressProgressBar;
-
-        private SceneTransitionConfiguration(IScene scene, bool additively)
+        protected class SceneTransitionConfiguration<T> // XXX: if no data, then specify object. Void not possible
         {
-            DestinationScene = scene;
-            IsAdditive = additively;
-        }
+            /// <summary>
+            /// Destination
+            /// </summary>
+            /// <remarks>Required</remarks>
+            public readonly IScene DestinationScene;
 
-        /// <summary>
-        /// Create a new configuration
-        /// </summary>
-        /// <param name="scene">destination</param>
-        /// <param name="additively"></param>
-        /// <returns><see cref="SceneTransitionConfiguration"/></returns>
-        public static SceneTransitionConfiguration StartConfiguration(IScene scene, bool additively)
-        {
-            return new SceneTransitionConfiguration(scene, additively);
-        }
+            /// <summary>
+            /// Additive Load or not?
+            /// </summary>
+            /// <remarks>Default: false</remarks>
+            public readonly bool IsAdditive;
 
-        /// <summary>
-        /// Set data to pass to the next scene
-        /// </summary>
-        /// <param name="data">Object that implements <see cref="ISceneData"/></param>
-        /// <returns><see cref="SceneTransitionConfiguration"/></returns>
-        public SceneTransitionConfiguration AttachData(ISceneData data)
-        {
-            DataToTransfer = data;
-            return this;
-        }
+            /// <summary>
+            /// Data to transfer to the next scene
+            /// </summary>
+            /// <remarks>Optional, default: null</remarks>
+            public T DataToTransfer;
 
-        /// <summary>
-        /// Enable transition animation
-        /// </summary>
-        /// <returns><see cref="SceneTransitionConfiguration"/></returns>
-        public SceneTransitionConfiguration WithTransitionEffect()
-        {
-            PerformTransition = true;
-            return this;
-        }
+            /// <summary>
+            /// True if you wish to do a transition animation
+            /// </summary>
+            /// <remarks>Default: false</remarks>
+            public bool PerformTransition;
 
-        /// <summary>
-        /// Hide the progress bar even if it exists in the scene and assigned to <see cref="Switcher"/>.
-        /// </summary>
-        /// <returns></returns>
-        public SceneTransitionConfiguration HideProgressBar()
-        {
-            SupressProgressBar = true;
-            return this;
-        }
+            /// <summary>
+            /// time to defer transition in seconds
+            /// </summary>
+            /// <remarks>Default: 0.0f</remarks>
+            public float Delay;
 
-        /// <summary>
-        /// Set time before transition
-        /// </summary>
-        /// <param name="seconds"></param>
-        /// <returns><see cref="SceneTransitionConfiguration"/></returns>
-        public SceneTransitionConfiguration After(float seconds)
-        {
-            Delay = seconds;
-            return this;
+            /// <summary>
+            /// If the progress bar should not be shown, true
+            /// </summary>
+            public bool SupressProgressBar;
+
+            private SceneTransitionConfiguration(IScene scene, bool additively)
+            {
+                DestinationScene = scene;
+                IsAdditive = additively;
+            }
+
+            /// <summary>
+            /// Create a new configuration
+            /// </summary>
+            /// <param name="scene">destination</param>
+            /// <param name="additively"></param>
+            /// <returns><see cref="SceneTransitionConfiguration{T}"/></returns>
+            public static SceneTransitionConfiguration<T> StartConfiguration(IScene scene, bool additively)
+            {
+                return new SceneTransitionConfiguration<T>(scene, additively);
+            }
+
+            /// <summary>
+            /// Set data to pass to the next scene
+            /// </summary>
+            /// <param name="data">Object that implements <see cref="ISceneData"/></param>
+            /// <returns><see cref="SceneTransitionConfiguration{T}"/></returns>
+            public SceneTransitionConfiguration<T> AttachData(T data)
+            {
+                DataToTransfer = data;
+                return this;
+            }
+
+            /// <summary>
+            /// Enable transition animation
+            /// </summary>
+            /// <returns><see cref="SceneTransitionConfiguration{T}"/></returns>
+            public SceneTransitionConfiguration<T> WithTransitionEffect()
+            {
+                PerformTransition = true;
+                return this;
+            }
+
+            /// <summary>
+            /// Hide the progress bar even if it exists in the scene and assigned to <see cref="Switcher"/>.
+            /// </summary>
+            /// <returns></returns>
+            public SceneTransitionConfiguration<T> HideProgressBar()
+            {
+                SupressProgressBar = true;
+                return this;
+            }
+
+            /// <summary>
+            /// Set time before transition
+            /// </summary>
+            /// <param name="seconds"></param>
+            /// <returns><see cref="SceneTransitionConfiguration{T}"/></returns>
+            public SceneTransitionConfiguration<T> After(float seconds)
+            {
+                Delay = seconds;
+                return this;
+            }
         }
     }
 }

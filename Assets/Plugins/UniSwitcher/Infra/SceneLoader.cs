@@ -7,18 +7,28 @@ using UniSwitcher.Domain;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using Zenject;
 
 namespace UniSwitcher.Infra
 {
-    public delegate void OnProgressUpdateDelegate(float progress);
-    
     /// <summary>
-    /// Scene Loader (Injected)
+    /// 
+    /// </summary>
+    /// <param name="progress"></param>
+    public delegate void OnProgressUpdateDelegate(float progress);
+
+    /// <summary>
+    /// <see cref="ISceneLoader"/> implementation
     /// One instance per <see cref="Switcher"/>
     /// </summary>
     /// <remarks>
-    /// Important Caveat: Loading the same scene multiple times is not supported.
-    /// It might break load status detection
+    /// <para>
+    /// Important Caveat: Loading the same scene multiple times additively is not supported.
+    /// It might break load status detection.
+    /// </para>
+    /// <para>
+    /// It is totally fine to single-load the same scene.
+    /// </para>
     /// </remarks>
     public class SceneLoader : MonoBehaviour, ISceneLoader
     {
@@ -31,7 +41,12 @@ namespace UniSwitcher.Infra
         /// </summary>
         private Dictionary<string, bool> _loaded;
 
-        private void Awake()
+#pragma warning disable 0649
+        [Inject] private ZenjectSceneLoader _sceneLoader;
+#pragma warning restore 0649
+
+        [Inject]
+        private void Construct()
         {
             _loaded = new Dictionary<string, bool>();
 
@@ -39,24 +54,24 @@ namespace UniSwitcher.Infra
             {
                 _loaded.Add(SceneUtility.GetScenePathByBuildIndex(i), false);
             }
-            
+
             _currentScene = SceneManager.GetActiveScene().path;
             _loaded[_currentScene] = true;
         }
 
         /// <inheritdoc cref="ISceneLoader.LoadScene"/>
-        public void LoadScene(IScene target, bool isAdditive = false)
+        public void LoadScene<T>(IScene target, bool isAdditive, T sceneData)
         {
             SetStateToLoading(target, isAdditive);
-            LoadSceneCoroutine(target, isAdditive).Forget(Debug.LogException);
+            LoadSceneAsync(target, isAdditive, sceneData).Forget(Debug.LogException);
         }
 
         /// <inheritdoc cref="ISceneLoader.LoadSceneWithDelay"/>
-        public void LoadSceneWithDelay(IScene target, float time, bool isAdditive = false,
+        public void LoadSceneWithDelay<T>(IScene target, float time, bool isAdditive, T sceneData,
             CancellationToken cancellationToken = default)
         {
             SetStateToLoading(target, isAdditive);
-            DelayMethod(time, () => { LoadScene(target, isAdditive); }, cancellationToken).Forget(e =>
+            DelayMethod(time, () => { LoadScene(target, isAdditive, sceneData); }, cancellationToken).Forget(e =>
             {
                 if (e is OperationCanceledException)
                 {
@@ -70,7 +85,7 @@ namespace UniSwitcher.Infra
         /// <inheritdoc cref="ISceneLoader.UnloadScene"/>
         public void UnloadScene(IScene target)
         {
-            UnloadSceneCoroutine(target).Forget(Debug.LogException);
+            UnloadSceneAsync(target).Forget(Debug.LogException);
         }
 
         /// <summary>
@@ -78,12 +93,14 @@ namespace UniSwitcher.Infra
         /// </summary>
         /// <param name="target"></param>
         /// <param name="isAdditive"></param>
-        /// <returns></returns>
-        private async UniTask LoadSceneCoroutine(IScene target, bool isAdditive)
+        /// <param name="sceneData"></param>
+        /// <returns>UniTask</returns>
+        private async UniTask LoadSceneAsync<T>(IScene target, bool isAdditive, T sceneData)
         {
-            var loadedLevel = SceneManager.LoadSceneAsync(
+            var loadedLevel = _sceneLoader.LoadSceneAsync(
                 target.GetRawValue(),
-                isAdditive ? LoadSceneMode.Additive : LoadSceneMode.Single
+                isAdditive ? LoadSceneMode.Additive : LoadSceneMode.Single,
+                c => { c.Bind<T>().FromInstance(sceneData).AsSingle(); }
             );
             while (!loadedLevel.isDone)
             {
@@ -96,7 +113,12 @@ namespace UniSwitcher.Infra
             _currentScene = target.GetRawValue();
         }
 
-        private async UniTask UnloadSceneCoroutine(IScene target)
+        /// <summary>
+        /// Under-the-hood unloading
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        private async UniTask UnloadSceneAsync(IScene target)
         {
             var unloadedLevel = SceneManager.UnloadSceneAsync(
                 target.GetRawValue()

@@ -7,59 +7,52 @@ using UnityEngine.SceneManagement;
 namespace UniSwitcher.Infra
 {
     /// <summary>
-    /// A class that finds <see cref="IDataLoader"/> in the scene and pass the data for initialization
+    /// A class that finds <see cref="ISceneEntryPoint"/> in the scene and triggers the entry point
     /// </summary>
     public class BootStrapper : IBootStrapper
     {
-        /// <inheritdoc cref="IBootStrapper.Pass"/>
+        /// <inheritdoc cref="IBootStrapper.TriggerEntryPoint"/>
         /// <exception cref="Exception"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public async UniTask Pass(ISceneData data)
+        public async UniTask TriggerEntryPoint()
         {
             var rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
-            GameObject dataLoaderObject = null;
+            ISceneEntryPoint sceneEntryPoint = null;
             foreach (var rootObject in rootObjects)
             {
-                var component = rootObject.GetComponent<IDataLoader>();
-                if (component != null)
+                sceneEntryPoint = rootObject.GetComponent<ISceneEntryPoint>();
+                if (sceneEntryPoint != null)
                 {
-                    dataLoaderObject = rootObject;
                     break;
                 }
             }
 
-            if (dataLoaderObject == null)
-            {
-                Debug.LogError(
-                    $"Cannot find any Data Loader in the active scene, '{SceneManager.GetActiveScene().name}'!\n" +
-                    "Did you mean to accept data in this scene? Did you check the correct scene is fully loaded?");
-                throw new Exception("Data passed but no data loader is located.");
-            }
+            // If null at this point, there are no entry point.
+            if (sceneEntryPoint == null) return;
 
-            var dataLoader = dataLoaderObject.GetComponent<IDataLoader>();
-            if (!dataLoader.Validate(data))
+            if (!sceneEntryPoint.Validate())
             {
                 Debug.LogError(
-                    "Validator failed the value! Are you sure you are passing a correct value? Did you check if your scene is loaded first?");
+                    "Validator failed the value! Are you sure you are passing a correct value? Did you check if your scene is loaded first?"
+                );
                 throw new ArgumentException("Data loader validator failure.");
             }
 
             try
             {
-                dataLoader.Load(data);
+                sceneEntryPoint.Fire();
             }
             catch (Exception e)
             {
                 Debug.LogError(
-                    "Data loader threw exception on load - initialization failure! Trace follows this message.\n" +
-                    $"The data loader object is named {dataLoaderObject.name}");
+                    "Data loader threw exception on load - initialization failure! Trace follows this message.\n");
                 Debug.LogException(e);
-                dataLoader.OnFailure(e);
+                sceneEntryPoint.OnFailure(e);
                 return;
             }
 
             // Wait for lift...
-            while (dataLoader.IsHeld())
+            while (sceneEntryPoint.IsHeld())
             {
                 await UniTask.Yield();
             }
