@@ -14,7 +14,7 @@ namespace UniSwitcher.Domain
     public interface ISceneEntryPoint
     {
         /// <summary>
-        /// Load the data injected through Zenject, and pass it to other GameObjects if needed.
+        /// This is the entry point. Decode data, pass it to other GameObjects, do whatever you want.
         /// </summary>
         void Fire();
 
