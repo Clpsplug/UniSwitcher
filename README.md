@@ -13,7 +13,7 @@ Versions are the earliest ones I personally known to work, but it is possible th
 
 # See it in action
 
-Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity`.
+Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity` after 3 seconds of transition.
 
 # Basic usages
 
@@ -54,7 +54,7 @@ Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity`.
   ```
 
 4. In this class, you can **call `PerformSceneTransition`.**  
-  The most basic usage is to pass `ChangeScene(new MyScene("Assets/path/to/scene.unity"))`.
+  The most basic usage is to run `ChangeScene(new MyScene("Assets/path/to/scene.unity"))`.
   ```csharp
   public Sample: Switcher
   {
@@ -71,12 +71,10 @@ Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity`.
 
 First, follow everything in the previous section.
 
-1. **Define a class that implements `UniSwitcher.Domain.ISceneData`.**  
-  There are nothing to implement, but you need to define the schema of data you want to pass.  
-  This is done to catch weird data being passed at compile time.
+1. **Define a class to hold the data.**  
   ```csharp
   using UniSwitcher.Domain;
-  public class SampleData: ISceneData
+  public class SampleData
   {
     public int Answer;
     
@@ -87,19 +85,22 @@ First, follow everything in the previous section.
   }
   ```
 
-2. UniSwitcher will look for **`UniSwitcher.Domain.IDataLoader`** on changing into scenes.   
-  This **MUST** be a `MonoBehaviour`, and you need to create one per a scene.
+2. UniSwitcher will look for **`UniSwitcher.Domain.IDataLoader`** in the next scene.  
+  If found, UniSwitcher thinks that this is an entrypoint of the scene, and calls `Load()` on it.  
+  This **MUST** be a `MonoBehaviour`, and you can only have this up to one per scene.  
+  You can receive the data passed from the previous scene by using `[Inject]` on the data type.
   ```csharp
   using UniSwitcher.Domain;
   public class SampleDataLoader: MonoBehaviour, IDataLoader
   {
-    public void Load(ISceneData data)
+    [Inject] private SampleData _data;
+    public void Load()
     {
-      Debug.Log(((SampleData) data).Answer);
+      Debug.Log(_data).Answer);
     }
-    public bool Validate(ISceneData data)
+    public bool Validate()
     {
-      return data is SampleData;
+      return data !== null;
     }
     public void OnFailure(Exception e)
     {
@@ -114,12 +115,12 @@ First, follow everything in the previous section.
 
 3. In the _destination_ scene, **create a new `GameObject` and attach the `IDataLoader`** you just created (e.g. `SampleDataLoader`) as a component.
 
-4. In the `Switcher` script in the _originating_ scene, perform the scene change **with `.AttachData()` appended to `ChangeScene()`.**
+4. In the `Switcher` script in the _originating_ scene, perform the scene change **with the data after the final parameter of `ChangeScene()`.**
   ```csharp
-  PerformSceneTransition(ChangeScene(new MyScene("Assets/path/to/scene.unity")).AttachData(new SampleData(42)));
+  PerformSceneTransition(ChangeScene(new MyScene("Assets/path/to/scene.unity"), new SampleData(42)));
   ```
   
-You can now observe the data begin logged in the console!
+You can now observe the data being logged in the console!
 
 
 
@@ -135,7 +136,7 @@ PerformSceneTransition(new MyScene("path/to/scene.unity")).Forget(Debug.LogExcep
 
 ## avoid typing scene paths in full?
 
-You can create static members in `MyScene`...
+You can create static parameter in `MyScene`...
 
 ```csharp
 public MyScene: IScene {
