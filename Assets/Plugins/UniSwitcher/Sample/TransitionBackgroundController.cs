@@ -11,7 +11,7 @@ namespace UniSwitcher.Sample
     {
         [SerializeField] private Animator transitionAnimator = default;
 
-        [SerializeField] private Canvas mainCanvas = default;
+        [SerializeField] private Canvas selfCanvas = default;
 
         private static readonly int TransitionIn = Animator.StringToHash("TransitionIn");
         private static readonly int TransitionOut = Animator.StringToHash("TransitionOut");
@@ -32,7 +32,7 @@ namespace UniSwitcher.Sample
             var mainCamera = Camera.main;
             if (mainCamera != null)
             {
-                mainCanvas.worldCamera = mainCamera;
+                selfCanvas.worldCamera = mainCamera;
                 return;
             }
 

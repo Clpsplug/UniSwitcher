@@ -9,10 +9,10 @@ namespace UniSwitcher.Domain
     public interface IBootStrapper
     {
         /// <summary>
-        /// Pass data to <see cref="IDataLoader"/> that exists in the next scene.
+        /// Fires the entry point of <see cref="ISceneEntryPoint"/> that exists in the next scene.
         /// </summary>
         /// <param name="data">Data to pass.</param>
         /// <remarks>Ensure that <see cref="ISceneLoader.IsLoaded"/> returns true before calling it.</remarks>
-        UniTask Pass(ISceneData data);
+        UniTask TriggerEntryPoint();
     }
 }

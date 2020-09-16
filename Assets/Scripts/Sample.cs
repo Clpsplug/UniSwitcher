@@ -6,7 +6,9 @@ public class Sample : Switcher
 {
     private void Start()
     {
-        PerformSceneTransition(ChangeScene(Scene.SecondScene).WithTransitionEffect()).Forget(Debug.LogException);
+        PerformSceneTransition(
+            ChangeScene(Scene.SecondScene, new SampleData(42))
+                .WithTransitionEffect()
+        ).Forget(Debug.LogException);
     }
 }
-

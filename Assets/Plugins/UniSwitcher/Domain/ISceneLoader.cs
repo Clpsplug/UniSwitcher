@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Threading;
 using UniSwitcher.Infra;
 using UnityEngine.Events;
@@ -15,7 +16,8 @@ namespace UniSwitcher.Domain
         /// </summary>
         /// <param name="target">Target scene</param>
         /// <param name="isAdditive">true to perform additive load</param>
-        void LoadScene(IScene target, bool isAdditive = false);
+        /// <param name="sceneData"></param>
+        void LoadScene<T>(IScene target, bool isAdditive, T sceneData);
 
         /// <summary>
         /// Load scene after set amount of time
@@ -23,8 +25,9 @@ namespace UniSwitcher.Domain
         /// <param name="target">Target scene</param>
         /// <param name="time">Time (in seconds)</param>
         /// <param name="isAdditive">true to perform additive load</param>
+        /// <param name="sceneData"></param>
         /// <param name="cancellationToken">Pass token to enable load cancelling</param>
-        void LoadSceneWithDelay(IScene target, float time, bool isAdditive = true,
+        void LoadSceneWithDelay<T>(IScene target, float time, bool isAdditive, T sceneData,
             CancellationToken cancellationToken = default);
 
         /// <summary>
