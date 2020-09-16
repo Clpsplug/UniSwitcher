@@ -324,7 +324,7 @@ namespace UniSwitcher
             /// <summary>
             /// Set data to pass to the next scene
             /// </summary>
-            /// <param name="data">Object that implements <see cref="ISceneData"/></param>
+            /// <param name="data">Object to pass as the data</param>
             /// <returns><see cref="SceneTransitionConfiguration{T}"/></returns>
             public SceneTransitionConfiguration<T> AttachData(T data)
             {

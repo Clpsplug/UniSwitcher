@@ -7,7 +7,8 @@ namespace UniSwitcher.Domain
     /// Interface for Scene entry point
     /// If an implementation exists in the destination scene, <see cref="BootStrapper"/> will call it
     /// <para>
-    /// The implementations should get <see cref="ISceneData"/> injected, but consider optional injection for testing purposes.
+    /// The implementations should get the data passed injected through the type of the data,
+    /// but consider optional injection for testing purposes.
     /// </para>
     /// </summary>
     public interface ISceneEntryPoint
