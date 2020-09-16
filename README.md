@@ -30,7 +30,7 @@ Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity` 
 2. **Copy the following** into a new file. This creates a class which implements `UniSwitcher.Domain.IScene`.
   ```csharp
   using UniSwitcher.Domain;
-  public MyScene: IScene {
+  public class MyScene: IScene {
     private readonly string _rawValue;
     public MyScene(string rawValue) {
       _rawValue = rawValue;
@@ -47,7 +47,7 @@ Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity` 
 3. **Create a class extending `UniSwitcher.Switcher`,** which also extends `MonoBehaviour`.
   ```csharp
   using UniSwitcher.Switcher;
-  public Sample: Switcher
+  public class Sample: Switcher
   {
     
   }
@@ -56,7 +56,7 @@ Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity` 
 4. In this class, you can **call `PerformSceneTransition`.**  
   The most basic usage is to run `ChangeScene(new MyScene("Assets/path/to/scene.unity"))`.
   ```csharp
-  public Sample: Switcher
+  public class Sample: Switcher
   {
     // We choose Start() so that you can see the effect immediately
     private void Start() {
