@@ -59,14 +59,14 @@ namespace UniSwitcher.Infra
             _loaded[_currentScene] = true;
         }
 
-        /// <inheritdoc cref="ISceneLoader.LoadScene"/>
+        /// <inheritdoc cref="ISceneLoader.LoadScene{T}"/>
         public void LoadScene<T>(IScene target, bool isAdditive, T sceneData)
         {
             SetStateToLoading(target, isAdditive);
             LoadSceneAsync(target, isAdditive, sceneData).Forget(Debug.LogException);
         }
 
-        /// <inheritdoc cref="ISceneLoader.LoadSceneWithDelay"/>
+        /// <inheritdoc cref="ISceneLoader.LoadSceneWithDelay{T}"/>
         public void LoadSceneWithDelay<T>(IScene target, float time, bool isAdditive, T sceneData,
             CancellationToken cancellationToken = default)
         {
