@@ -85,16 +85,16 @@ First, follow everything in the previous section.
   }
   ```
 
-2. UniSwitcher will look for **`UniSwitcher.Domain.IDataLoader`** in the next scene.  
-  If found, UniSwitcher thinks that this is an entrypoint of the scene, and calls `Load()` on it.  
+2. UniSwitcher will look for **`UniSwitcher.Domain.ISceneEntryPoint`** in the next scene.  
+  If found, UniSwitcher thinks that this is an entrypoint of the scene, and calls `Fire()` on it.  
   This **MUST** be a `MonoBehaviour`, and you can only have this up to one per scene.  
   You can receive the data passed from the previous scene by using `[Inject]` on the data type.
   ```csharp
   using UniSwitcher.Domain;
-  public class SampleDataLoader: MonoBehaviour, IDataLoader
+  public class SampleEntryPoint: MonoBehaviour, ISceneEntryPoint
   {
     [Inject] private SampleData _data;
-    public void Load()
+    public void Fire()
     {
       Debug.Log(_data).Answer);
     }
@@ -113,7 +113,7 @@ First, follow everything in the previous section.
   }
   ```
 
-3. In the _destination_ scene, **create a new `GameObject` and attach the `IDataLoader`** you just created (e.g. `SampleDataLoader`) as a component.
+3. In the _destination_ scene, **create a new `GameObject` and attach the `ISceneEntryPoint`** you just created (e.g. `SampleEntryPoint`) as a component.
 
 4. In the `Switcher` script in the _originating_ scene, perform the scene change **with the data after the final parameter of `ChangeScene()`.**
   ```csharp
