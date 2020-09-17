@@ -96,7 +96,7 @@ First, follow everything in the previous section.
     [Inject] private SampleData _data;
     public void Fire()
     {
-      Debug.Log(_data).Answer);
+      Debug.Log(_data.Answer);
     }
     public bool Validate()
     {
