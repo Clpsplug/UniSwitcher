@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniSwitcher.Domain;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -111,6 +112,13 @@ namespace UniSwitcher.Infra
             SceneManager.SetActiveScene(SceneManager.GetSceneByPath(target.GetRawValue()));
             _loaded[target.GetRawValue()] = true;
             _currentScene = target.GetRawValue();
+
+#if UNITY_ANALYTICS
+            if (Analytics.enabled && (!(target as IReportable)?.DoNotReport() ?? false))
+            {
+                AnalyticsEvent.ScreenVisit(target.GetRawValue());
+            }
+#endif
         }
 
         /// <summary>
