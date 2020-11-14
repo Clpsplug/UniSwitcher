@@ -97,6 +97,13 @@ namespace UniSwitcher.Infra
         /// <returns>UniTask</returns>
         private async UniTask LoadSceneAsync<T>(IScene target, bool isAdditive, T sceneData)
         {
+            if (IsLoaded(target) && isAdditive)
+            {
+                Debug.LogWarning(
+                    "UniSwitcher currently does not fully support additively loading the same scene multiple times. Unloading functionality may break."
+                );
+            }
+
             var loadedLevel = _sceneLoader.LoadSceneAsync(
                 target.GetRawValue(),
                 isAdditive ? LoadSceneMode.Additive : LoadSceneMode.Single,
@@ -109,7 +116,7 @@ namespace UniSwitcher.Infra
             }
 
             SceneManager.SetActiveScene(SceneManager.GetSceneByPath(target.GetRawValue()));
-            _loaded[target.GetRawValue()] = true;
+            SetLoaded(target, true);
             _currentScene = target.GetRawValue();
         }
 
@@ -123,13 +130,21 @@ namespace UniSwitcher.Infra
             var unloadedLevel = SceneManager.UnloadSceneAsync(
                 target.GetRawValue()
             );
+
+            if (!IsLoaded(target))
+            {
+                Debug.LogError(
+                    $"Target {target.GetRawValue()} does not look loaded. This either means you're unloading a wrong scene or a bug in UniSwitcher."
+                );
+            }
+
             while (!unloadedLevel.isDone)
             {
                 _progressUpdateDelegates?.Invoke(unloadedLevel.progress);
                 await UniTask.Yield();
             }
 
-            _loaded[target.GetRawValue()] = false;
+            SetLoaded(target, false);
             _currentScene = SceneManager.GetActiveScene().path;
         }
 
@@ -156,6 +171,11 @@ namespace UniSwitcher.Infra
             {
                 return false;
             }
+        }
+
+        private void SetLoaded(IScene target, bool loaded)
+        {
+            _loaded[target.GetRawValue()] = loaded;
         }
 
         /// <inheritdoc cref="ISceneLoader.AddProgressUpdateDelegate"/>
