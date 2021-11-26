@@ -14,12 +14,12 @@ namespace UniSwitcher.Domain
         /// <summary>
         /// Triggers the transition In (normal state to transitioning state) animation.
         /// </summary>
-        void TriggerTransitionIn<T>(Switcher.SceneTransitionConfiguration<T> config);
+        void TriggerTransitionIn();
 
         /// <summary>
         /// Triggers the transition Out (transitioning state to next scene state) animation.
         /// </summary>
-        void TriggerTransitionOut<T>(Switcher.SceneTransitionConfiguration<T> config);
+        void TriggerTransitionOut();
 
         /// <summary>
         /// Forces the transition to be 'Wait' status.

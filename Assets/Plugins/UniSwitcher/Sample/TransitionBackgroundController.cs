@@ -69,7 +69,7 @@ namespace UniSwitcher.Sample
             }
         }
 
-        public void TriggerTransitionIn<T>(Switcher.SceneTransitionConfiguration<T> config)
+        public void TriggerTransitionIn()
         {
             if (GetTransitionState() == TransitionState.Ready || GetTransitionState() == TransitionState.Out)
             {
@@ -77,7 +77,7 @@ namespace UniSwitcher.Sample
             }
         }
 
-        public void TriggerTransitionOut<T>(Switcher.SceneTransitionConfiguration<T> config)
+        public void TriggerTransitionOut()
         {
             if (GetTransitionState() == TransitionState.Wait || GetTransitionState() == TransitionState.In)
             {

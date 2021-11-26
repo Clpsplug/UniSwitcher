@@ -1,14 +1,14 @@
 # UniSwitcher
 
-Scene switcher &amp; data propagator wrapper for Unity3D
+Advanced scene switcher &amp; data propagator for Unity3D
 
 # Requirements
 
 UniSwitcher requires the following plugins to work.  
 Versions are the earliest ones I personally known to work, but it is possible that this works in previous versions.
 
-* Unity 2020.3 LTS
-* [Zenject](https://github.com/modesttree/Zenject) v9.1.0
+* Unity 2020.1.x
+* [Extenject](https://github.com/svermeulen/Extenject) v9.1.0
 * [UniTask](https://github.com/Cysharp/UniTask) v2.0.31
 
 # See it in action
@@ -42,7 +42,7 @@ Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity` 
   }
   ```
 
-***:tada: At this point, your project is ready to use UniSwitcher!***
+  ***:tada: At this point, your project is fully ready to use UniSwitcher!***
 
 3. **Create a class extending `UniSwitcher.Switcher`,** which also extends `MonoBehaviour`.
   ```csharp
@@ -54,7 +54,7 @@ Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity` 
   ```
 
 4. In this class, you can **call `PerformSceneTransition`.**  
-   The most basic usage is to run `ChangeScene(new MyScene("Assets/path/to/scene.unity"))`.
+  The most basic usage is to run `ChangeScene(new MyScene("Assets/path/to/scene.unity"))`.
   ```csharp
   public class Sample: Switcher
   {
@@ -65,14 +65,15 @@ Play `Assets/Scenes/SampleScene.unity`. It transitions into `SecondScene.unity` 
   }
   ```
 
-***:tada: Observe that the scene changes to the one you specified!***
+  ***:tada: Observe that the scene changes to the one you specified!***
 
 ## Scene change & data transfer
 
 First, follow everything in the previous section.
 
-1. **Define a class to hold the data.**
+1. **Define a class to hold the data.**  
   ```csharp
+  using UniSwitcher.Domain;
   public class SampleData
   {
     public int Answer;
@@ -84,18 +85,16 @@ First, follow everything in the previous section.
   }
   ```
 
-2. UniSwitcher will look for **`UniSwitcher.Domain.ISceneEntryPoint`** in the next scene.
-   If there are none, UniSwitcher simply ends the transition.
-   If found, UniSwitcher thinks that this is an entrypoint of the scene, and calls `Fire()` on it.  
-   This **MUST** be a `MonoBehaviour`, and you can only have this up to one per scene.  
-   You can receive the data passed from the previous scene by using `[Inject]` on the data type.
-   (If you want to test the destination scene without having to transition from another, you should instead use `[InjectOptional]` - otherwise the code will crash)
+2. UniSwitcher will look for **`UniSwitcher.Domain.ISceneEntryPoint`** in the next scene.  
+  If found, UniSwitcher thinks that this is an entrypoint of the scene, and calls `Fire()` on it.  
+  This **MUST** be a `MonoBehaviour`, and you can only have this up to one per scene.  
+  You can receive the data passed from the previous scene by using `[Inject]` on the data type.
   ```csharp
   using UniSwitcher.Domain;
   public class SampleEntryPoint: MonoBehaviour, ISceneEntryPoint
   {
     [Inject] private SampleData _data;
-    public async UniTask Fire()
+    public void Fire()
     {
       Debug.Log(_data.Answer);
     }
@@ -107,6 +106,10 @@ First, follow everything in the previous section.
     {
       Debug.LogException(e);
     }
+    public bool IsHeld()
+    {
+      return false;
+    }
   }
   ```
 
@@ -116,19 +119,16 @@ First, follow everything in the previous section.
   ```csharp
   PerformSceneTransition(ChangeScene(new MyScene("Assets/path/to/scene.unity"), new SampleData(42)));
   ```
-
+  
 You can now observe the data being logged in the console!
 
-# Performing an additive scene load
 
-Simply swap `ChangeScene()` with `AddScene()`.
 
 # How do I...
 
 ## supress warnings at `PerformSceneTransition`?
 
 Append `.Forget(Debug.LogException)` to the call. These warnings are because `PerformSceneTransition` is an async method.
-This is recommended since you can log exceptions should one gets thrown.
 
 ```csharp
 PerformSceneTransition(new MyScene("path/to/scene.unity")).Forget(Debug.LogException);
@@ -150,10 +150,6 @@ public MyScene: IScene {
 PerformSceneTransition(MyScene.Scene1);
 ```
 
-## implement advanced transition effects?
-
-See [ADVANCED.md](ADVANCED.md)!
-
 # License
 
 MIT license - see [LICENSE.txt](LICENSE.txt)
@@ -161,4 +157,4 @@ MIT license - see [LICENSE.txt](LICENSE.txt)
 # TODOs
 
 * Documentation
-    * Especially about transition effect
+  * Especially about transition effect

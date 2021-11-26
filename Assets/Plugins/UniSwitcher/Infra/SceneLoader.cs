@@ -89,7 +89,6 @@ namespace UniSwitcher.Infra
             UnloadSceneAsync(target).Forget(Debug.LogException);
         }
 
-        // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
         /// Under-the-hood loading
         /// </summary>
@@ -99,13 +98,6 @@ namespace UniSwitcher.Infra
         /// <returns>UniTask</returns>
         private async UniTask LoadSceneAsync<T>(IScene target, bool isAdditive, T sceneData)
         {
-            if (IsLoaded(target) && isAdditive)
-            {
-                Debug.LogWarning(
-                    "UniSwitcher currently does not fully support additively loading the same scene multiple times. Unloading functionality may break."
-                );
-            }
-
             var loadedLevel = _sceneLoader.LoadSceneAsync(
                 target.GetRawValue(),
                 isAdditive ? LoadSceneMode.Additive : LoadSceneMode.Single,
@@ -118,7 +110,7 @@ namespace UniSwitcher.Infra
             }
 
             SceneManager.SetActiveScene(SceneManager.GetSceneByPath(target.GetRawValue()));
-            SetLoaded(target, true);
+            _loaded[target.GetRawValue()] = true;
             _currentScene = target.GetRawValue();
 
 #if UNITY_ANALYTICS
@@ -129,7 +121,6 @@ namespace UniSwitcher.Infra
 #endif
         }
 
-        // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
         /// Under-the-hood unloading
         /// </summary>
@@ -137,31 +128,16 @@ namespace UniSwitcher.Infra
         /// <returns></returns>
         private async UniTask UnloadSceneAsync(IScene target)
         {
-            try
+            var unloadedLevel = SceneManager.UnloadSceneAsync(
+                target.GetRawValue()
+            );
+            while (!unloadedLevel.isDone)
             {
-                var unloadedLevel = SceneManager.UnloadSceneAsync(
-                    target.GetRawValue()
-                );
-
-                if (!IsLoaded(target))
-                {
-                    Debug.LogWarning(
-                        $"Target {target.GetRawValue()} does not look loaded."
-                    );
-                }
-
-                while (!unloadedLevel.isDone)
-                {
-                    _progressUpdateDelegates?.Invoke(unloadedLevel.progress);
-                    await UniTask.Yield();
-                }
-            }
-            catch (ArgumentException)
-            {
-                Debug.LogWarning("Target unload failure detected.");
+                _progressUpdateDelegates?.Invoke(unloadedLevel.progress);
+                await UniTask.Yield();
             }
 
-            SetLoaded(target, false);
+            _loaded[target.GetRawValue()] = false;
             _currentScene = SceneManager.GetActiveScene().path;
         }
 
@@ -188,11 +164,6 @@ namespace UniSwitcher.Infra
             {
                 return false;
             }
-        }
-
-        private void SetLoaded(IScene target, bool loaded)
-        {
-            _loaded[target.GetRawValue()] = loaded;
         }
 
         /// <inheritdoc cref="ISceneLoader.AddProgressUpdateDelegate"/>
