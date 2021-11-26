@@ -1,5 +1,4 @@
 using System;
-using Cysharp.Threading.Tasks;
 using UniSwitcher.Infra;
 
 namespace UniSwitcher.Domain
@@ -16,9 +15,8 @@ namespace UniSwitcher.Domain
     {
         /// <summary>
         /// This is the entry point. Decode data, pass it to other GameObjects, do whatever you want.
-        /// Implement this method as an async method. When this method finishes running, the transition will end.
         /// </summary>
-        UniTask Fire();
+        void Fire();
 
         /// <summary>
         /// Method to validate the data received.
@@ -30,8 +28,19 @@ namespace UniSwitcher.Domain
         /// <summary>
         /// This is called when <see cref="Fire"/> throws any exceptions.
         /// Can be used to gracefully fail.
+        /// If called, <see cref="IsHeld"/> will be ignored completely.
         /// </summary>
         /// <param name="e"></param>
         void OnFailure(Exception e);
+
+        /// <summary>
+        /// If for some reason you <see cref="Fire"/>d the entry point but want to delay the transition
+        /// (e.g. you fired an async operation in <see cref="Fire"/>,) return true.
+        /// As long as it returns true, the game will NOT transition out to the destination scene.
+        /// Make sure this eventually returns false, or you'll face soft locks.
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>NEVER throw anything.</remarks>
+        bool IsHeld();
     }
 }

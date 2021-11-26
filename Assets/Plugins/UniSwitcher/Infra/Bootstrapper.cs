@@ -40,7 +40,7 @@ namespace UniSwitcher.Infra
 
             try
             {
-                await sceneEntryPoint.Fire();
+                sceneEntryPoint.Fire();
             }
             catch (Exception e)
             {
@@ -48,6 +48,13 @@ namespace UniSwitcher.Infra
                     "Data loader threw exception on load - initialization failure! Trace follows this message.\n");
                 Debug.LogException(e);
                 sceneEntryPoint.OnFailure(e);
+                return;
+            }
+
+            // Wait for lift...
+            while (sceneEntryPoint.IsHeld())
+            {
+                await UniTask.Yield();
             }
         }
     }
