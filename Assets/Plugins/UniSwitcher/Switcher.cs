@@ -52,7 +52,7 @@ namespace UniSwitcher
         /// </summary>
         /// <param name="scene"></param>
         /// <returns></returns>
-        protected SceneTransitionConfiguration<object> ChangeScene(IScene scene)
+        protected virtual SceneTransitionConfiguration<object> ChangeScene(IScene scene)
         {
             return SceneTransitionConfiguration<object>.StartConfiguration(scene, false);
         }
@@ -64,7 +64,7 @@ namespace UniSwitcher
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected SceneTransitionConfiguration<T> ChangeScene<T>(IScene scene, T data)
+        protected virtual SceneTransitionConfiguration<T> ChangeScene<T>(IScene scene, T data)
         {
             return SceneTransitionConfiguration<T>.StartConfiguration(scene, false).AttachData(data);
         }
@@ -75,7 +75,7 @@ namespace UniSwitcher
         /// </summary>
         /// <param name="scene"></param>
         /// <returns></returns>
-        protected SceneTransitionConfiguration<object> AddScene(IScene scene)
+        protected virtual SceneTransitionConfiguration<object> AddScene(IScene scene)
         {
             return SceneTransitionConfiguration<object>.StartConfiguration(scene, true);
         }
@@ -87,7 +87,7 @@ namespace UniSwitcher
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected SceneTransitionConfiguration<T> AddScene<T>(IScene scene, T data)
+        protected virtual SceneTransitionConfiguration<T> AddScene<T>(IScene scene, T data)
         {
             return SceneTransitionConfiguration<T>.StartConfiguration(scene, true).AttachData(data);
         }
@@ -121,7 +121,7 @@ namespace UniSwitcher
                 DontDestroyOnLoad(this);
             }
 
-            if (!config.SupressProgressBar && sceneProgressBarController != null)
+            if (!config.SuppressProgressBar && sceneProgressBarController != null)
             {
                 sceneProgressBarController.Enable();
                 sceneProgressBarController.SetDDoL();
@@ -132,7 +132,7 @@ namespace UniSwitcher
                 // No delay or negligible delay
                 if (config.PerformTransition && TransitionBackgroundController != null)
                 {
-                    TransitionBackgroundController.TriggerTransitionIn();
+                    TransitionBackgroundController.TriggerTransitionIn(config);
                     await UniTask.Delay(TimeSpan.FromSeconds(0.1));
                     while (TransitionBackgroundController.GetTransitionState() == TransitionState.In)
                     {
@@ -150,7 +150,7 @@ namespace UniSwitcher
                 if (config.PerformTransition && TransitionBackgroundController != null)
                 {
                     // In case of delayed transition, trigger transition 1 second before scene change
-                    TransitionBackgroundController.TriggerTransitionIn();
+                    TransitionBackgroundController.TriggerTransitionIn(config);
                     await UniTask.Delay(TimeSpan.FromSeconds(config.Delay - 1));
                     while (TransitionBackgroundController.GetTransitionState() == TransitionState.In)
                     {
@@ -174,7 +174,7 @@ namespace UniSwitcher
                 await UniTask.Yield();
             }
 
-            if (!config.SupressProgressBar && sceneProgressBarController != null)
+            if (!config.SuppressProgressBar && sceneProgressBarController != null)
             {
                 sceneProgressBarController.SetProgress(1f);
                 if (config.IsAdditive)
@@ -189,7 +189,7 @@ namespace UniSwitcher
 
             if (config.PerformTransition)
             {
-                TransitionBackgroundController?.TriggerTransitionOut();
+                TransitionBackgroundController?.TriggerTransitionOut(config);
             }
 
             if (!config.IsAdditive)
@@ -206,6 +206,22 @@ namespace UniSwitcher
         protected async UniTask WaitForTransitionReady()
         {
             while (TransitionBackgroundController.GetTransitionState() != TransitionState.Ready)
+            {
+                await UniTask.Yield();
+            }
+        }
+
+        /// <summary>
+        /// This method will not complete until the <see cref="target"/> scene unloads.
+        /// As soon as the target scene is unloaded (and gets ready for reload,)
+        /// the loop immediately breaks, completing the method.
+        /// </summary>
+        /// <param name="target"><see cref="IScene"/> to wait for its unload</param>
+        /// <returns></returns>
+        /// <remarks>If the scene is unloaded to start with, this method will immediately return.</remarks>
+        protected async UniTask WaitForSceneUnload(IScene target)
+        {
+            while (_sceneLoader.IsLoaded(target))
             {
                 await UniTask.Yield();
             }
@@ -257,57 +273,97 @@ namespace UniSwitcher
         }
 
         /// <summary>
-        /// overridable, but should also call this as well
+        /// Things to do before <see cref="Switcher"/>'s <see cref="OnDestroy"/> do things
         /// </summary>
-        protected virtual void OnDestroy()
+        protected virtual void WillBeDestroyed()
         {
+            /* no-op */
+        }
+        
+        /// <summary>
+        /// DO NOT OVERRIDE. Use <see cref="WillBeDestroyed"/> or <see cref="WasDestroyed"/>
+        /// </summary>
+        /// <remarks>
+        /// Overriding this is a bad idea because you'll need to remember to call 'this' <see cref="OnDestroy"/>.
+        /// </remarks>
+        private void OnDestroy()
+        {
+            WillBeDestroyed();
             _sceneLoader.ResetProgressUpdateDelegate();
+            WasDestroyed();
+        }
+
+        /// <summary>
+        /// Things to do after <see cref="Switcher"/>'s <see cref="OnDestroy"/> did its things
+        /// </summary>
+        protected virtual void WasDestroyed()
+        {
+            /* no-op */
         }
 
         /// <summary>
         /// Configuration for scene transition
         /// </summary>
-        protected class SceneTransitionConfiguration<T> // XXX: if no data, then specify object. Void not possible
+        /// <remarks>
+        /// The point of this class is to be able to be used as a 'builder' class.
+        /// You MAY extend this class to customize the configuration, but you SHOULD mark such classes 'sealed'
+        /// to avoid any chaos and SHOULD NOT make more than one of them.
+        /// </remarks>
+        public class SceneTransitionConfiguration<T> // XXX: if no data, then specify object. Void not possible
         {
             /// <summary>
             /// Destination
             /// </summary>
             /// <remarks>Required</remarks>
-            public readonly IScene DestinationScene;
+            public IScene DestinationScene { get; }
 
             /// <summary>
             /// Additive Load or not?
             /// </summary>
             /// <remarks>Default: false</remarks>
-            public readonly bool IsAdditive;
+            public bool IsAdditive { get; }
 
             /// <summary>
             /// Data to transfer to the next scene
             /// </summary>
             /// <remarks>Optional, default: null</remarks>
-            public T DataToTransfer;
+            public T DataToTransfer { get; private set; }
 
             /// <summary>
             /// True if you wish to do a transition animation
             /// </summary>
             /// <remarks>Default: false</remarks>
-            public bool PerformTransition;
+            public bool PerformTransition { get; private set; }
 
             /// <summary>
             /// time to defer transition in seconds
             /// </summary>
             /// <remarks>Default: 0.0f</remarks>
-            public float Delay;
+            public float Delay { get; private set; }
 
             /// <summary>
             /// If the progress bar should not be shown, true
             /// </summary>
-            public bool SupressProgressBar;
+            public bool SuppressProgressBar { get; private set; }
 
             private SceneTransitionConfiguration(IScene scene, bool additively)
             {
                 DestinationScene = scene;
                 IsAdditive = additively;
+            }
+
+            /// <summary>
+            /// Constructor that just copies the original. This is used when extending this configuration.
+            /// </summary>
+            /// <param name="original"></param>
+            protected SceneTransitionConfiguration(SceneTransitionConfiguration<T> original)
+            {
+                DestinationScene = original.DestinationScene;
+                IsAdditive = original.IsAdditive;
+                DataToTransfer = original.DataToTransfer;
+                PerformTransition = original.PerformTransition;
+                Delay = original.Delay;
+                SuppressProgressBar = original.SuppressProgressBar;
             }
 
             /// <summary>
@@ -326,7 +382,7 @@ namespace UniSwitcher
             /// </summary>
             /// <param name="data">Object to pass as the data</param>
             /// <returns><see cref="SceneTransitionConfiguration{T}"/></returns>
-            public SceneTransitionConfiguration<T> AttachData(T data)
+            internal SceneTransitionConfiguration<T> AttachData(T data)
             {
                 DataToTransfer = data;
                 return this;
@@ -348,7 +404,7 @@ namespace UniSwitcher
             /// <returns></returns>
             public SceneTransitionConfiguration<T> HideProgressBar()
             {
-                SupressProgressBar = true;
+                SuppressProgressBar = true;
                 return this;
             }
 
