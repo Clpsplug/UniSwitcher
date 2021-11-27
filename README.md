@@ -5,9 +5,9 @@ Scene switcher &amp; data propagator wrapper for Unity3D
 # Requirements
 
 UniSwitcher requires the following plugins to work.  
-Versions are the earliest ones I personally known to work, but it is possible that this works in previous versions.
+The versions are the earliest ones I personally checked with; it is possible that this still works with later versions.
 
-* Unity 2020.3 LTS
+* Unity 2020.x
 * [Zenject](https://github.com/modesttree/Zenject) v9.1.0
 * [UniTask](https://github.com/Cysharp/UniTask) v2.0.31
 
@@ -87,7 +87,8 @@ First, follow everything in the previous section.
 2. UniSwitcher will look for **`UniSwitcher.Domain.ISceneEntryPoint`** in the next scene.
    If there are none, UniSwitcher simply ends the transition.
    If found, UniSwitcher thinks that this is an entrypoint of the scene, and calls `Fire()` on it.  
-   This **MUST** be a `MonoBehaviour`, and you can only have this up to one per scene.  
+   This **MUST** be a `MonoBehaviour` as you have to place it in the destination scene,
+   and you can only place it up to one per a scene.  
    You can receive the data passed from the previous scene by using `[Inject]` on the data type.
    (If you want to test the destination scene without having to transition from another, you should instead use `[InjectOptional]` - otherwise the code will crash)
   ```csharp
@@ -101,7 +102,7 @@ First, follow everything in the previous section.
     }
     public bool Validate()
     {
-      return data !== null;
+      return true;
     }
     public void OnFailure(Exception e)
     {
@@ -117,7 +118,8 @@ First, follow everything in the previous section.
   PerformSceneTransition(ChangeScene(new MyScene("Assets/path/to/scene.unity"), new SampleData(42)));
   ```
 
-You can now observe the data being logged in the console!
+You can now observe the data being logged in the console!  
+You will also notice a hard-cut between the scenes. To prevent this, you should look into the [Advanced usage of UniSwitcher](ADVANCED.md).
 
 # Performing an additive scene load
 
@@ -128,7 +130,7 @@ Simply swap `ChangeScene()` with `AddScene()`.
 ## supress warnings at `PerformSceneTransition`?
 
 Append `.Forget(Debug.LogException)` to the call. These warnings are because `PerformSceneTransition` is an async method.
-This is recommended since you can log exceptions should one gets thrown.
+This is recommended since you can safely log exceptions should one gets thrown.
 
 ```csharp
 PerformSceneTransition(new MyScene("path/to/scene.unity")).Forget(Debug.LogException);
@@ -158,7 +160,6 @@ See [ADVANCED.md](ADVANCED.md)!
 
 MIT license - see [LICENSE.txt](LICENSE.txt)
 
-# TODOs
+# Contributions
 
-* Documentation
-    * Especially about transition effect
+Issues and PRs are welcome!
