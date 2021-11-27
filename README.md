@@ -123,7 +123,8 @@ You will also notice a hard-cut between the scenes. To prevent this, you should 
 
 # Performing an additive scene load
 
-Simply swap `ChangeScene()` with `AddScene()`.
+Simply swap `ChangeScene()` with `AddScene()`. To unload it, use `UnloadScene(IScene target)`.  
+Note that you also have to put Scene Context in the additively loaded scene.
 
 # How do I...
 
