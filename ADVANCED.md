@@ -187,7 +187,7 @@ In UniSwitcher, the transition is defined in four states, which is defined in `T
 |:---:|:---|
 |Ready|The transition is not started, i.e., waiting. This is the default state. <br/>Also reaches this state when the "Out" state ends.|
 |In|Requires an explicit interaction to switch to this state. <br/>This is where the previous scene is starting to get covered with the transition screen.|
-|Hold|When the "In" state ends, the transition state automatically switches to this state.<br/>Only the transition screen can be seen by the user.|
+|Wait|When the "In" state ends, the transition state automatically switches to this state.<br/>Only the transition screen can be seen by the user.|
 |Out|Requires an explicit interaction to switch to this state. <br/>This is where the next scene is starting to appear below the transition screen.|
 
 Therefore, the transition effect _should_ have an Animator which has the four states above.
@@ -220,12 +220,22 @@ Called when the Transition Out is needed, Put the transitino into the "Out" stat
 
 #### `ForceTransitionWait()`
 
-Called for a rare case where you want to force the transition state to `Ready` state.  
+Called for a rare case where you want to force the transition state to `Wait` state.  
 
 > **[TIP]**  
 > You could create a transition in your Animator so that you can handle this case,
 > but this is only called when `Switcher.ForceTransitionWait`. 
 > If you are not using that, you can implement this method as no-op.
+
+
+## `IsTransitionAllowed()`
+
+This one is super important! This method tells UniSwitcher if it is okay to trigger next transition effects.  
+Usually, it is enough that you check if the transition state is `Ready` or `Wait`
+
+```csharp
+return GetTransitionState() == TransitionState.Ready || GetTransitionState() == TransitionState.Wait;
+```
 
 #### `GetTransitionState()`
 
