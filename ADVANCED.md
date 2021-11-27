@@ -3,6 +3,7 @@
 In addition to `Switcher`, there are several options and classes you can make use of
 to create fancy transition effects!
 
+------
 
 ## Additional Configurations
 
@@ -25,6 +26,30 @@ for this transition. Useful if you are additively loading another scene.
 ### `After(float seconds)`
 
 Performs the transition after specified seconds.
+
+-----
+
+## Extra `Switcher` helper methods
+
+There are two async methods that waits for specific conditions.  
+Note that these are asyncronous, so you need to call them in an asynchronous methods
+for them to work correctly.
+
+### `WaitForTransitionReady()`
+
+This method waits for the transition effect, if there is one and triggered, to fully finish.  
+Useful for cueing the animations etc. after the transition.
+
+If called when there is no transition effect running, the method will immediately finish.
+
+### `WaitForSceneUnload(IScene target)`
+
+This method waits for the specified (additive) scene to unload.  
+If your scene takes a while to unload, then wait for this method to finish.
+
+Again, if the target is not even loaded, then the method will immediately finish.
+
+-----
 
 ## Advanced `ISceneEntryPoint` Implementation
 
@@ -55,22 +80,24 @@ public void OnFailure(Exception e) {
 
 You can hold the game in the "transitioning" state while the game is initializing the scene,
 e.g., writing the saves.  
-If you want to do this, it is _strongly_ recommended 
-that you [implement the "Scene transition effect"](#itransitionbackgroundcontroller),
-otherwise you could allow the player to interact with the uninitialized scene!
 
-This is why the `Fire()` method is meant to be an async method. 
-The benefit of this is that the game does not freeze while you run a long initialization task, 
-as long as you put them in `await`.
+> **[IMPORTANT!]**  
+> If you want to do this, it is _strongly_ recommended 
+> that you [implement the "Scene transition effect"](#itransitionbackgroundcontroller),
+> otherwise you will allow the player to see/interact with the uninitialized scene
+> which would wreak absolute havoc on the game!
+
+UniSwitcher will wait for `Fire()` to finish before removing the transition effect.
+
+Note that this method is called _after_ the destination scene is loaded.
 
 ```csharp
 public async UniTask Fire() {
+    // We are in the new scene
     var result = await SendRecordToServer(sceneData); // may take very long, but the game won't freeze.
     sceneElement.Initialize(result); // Use the result to initialize the scene
 }
 ```
-
-
 
 ### Asserting the data
 
@@ -82,12 +109,13 @@ Implement `Validate()` and return `false` when something is not right about the 
 > as `ArgumentException` is thrown!  
 > Do _not_ use this method to handle errors that may occur during normal gameplay.
 
-
-
+------
 
 ## Advanced Classes
 
 These classes, if implemented, add to the base transition effect - super recommended to implement those!
+
+-----
 
 ### ProgressDisplayController
 
@@ -146,6 +174,8 @@ public override async UniTask Close() {
     Destroy(gameObject);
 }
 ```
+
+-----
 
 ### ITransitionBackgroundController
 
@@ -208,8 +238,53 @@ if (stateHash == Animator.StringToHash("Base Layer.TransitionIn")) {
     return TransitionState.In;
 } else if ( // and so on
 ```
-
+-----
 
 ## Extending the Scene Transition Configuration
 
+You are allowed to extend `Switcher.SceneTransitionConfiguration<T>`.
 
+By extending it, you can create a configurable transition effect.
+
+> **[TIP]**
+> Do not overdo this! Extending this class too far will make your code harder to read.
+> It is recommended that any extension is defined as `sealed class`.
+
+For example, if you want a transition effect to also display something,
+_but only for selected transition opportunities,_
+you can extend the configuration to define a builder method and the flag for it.
+
+```csharp
+public sealed class SpecialMessageSceneTransitionConfiguration<T> : Switcher.SceneTransitionConfiguration<T>, IMessageConfigurable
+{
+    public bool DisplayMessage { get; private set; }
+
+    private SpecialMessageSceneTransitionConfiguration(Switcher.SceneTransitionConfiguration<T> original) : base(original)
+    { }
+
+    public static SpecialMessageSceneTransitionConfiguration<T> ConvertToThis(Switcher.SceneTransitionConfiguration<T> original)
+    {
+        return new SpecialMessageSceneTransitionConfiguration<T>(original);
+    }
+
+    public SpecialMessageSceneTransitionConfiguration<T> WithMessage()
+    {
+        DisplayMessage = true;
+        return this;
+    }
+}
+
+public static class SceneTransitionConfigurationExtension
+{
+    public static SpecialMessageSceneTransitionConfiguration<T> AsSpecialMessageSceneTransitionConfiguration<T>(
+        this Switcher.SceneTransitionConfiguration<T> original)
+    {
+        return SpecialMessageSceneTransitionConfiguration<T>.ConvertToThis(original);
+    }
+}
+
+public interface IMessageConfigurable
+{
+    public bool DisplayMessage { get; }
+}
+```
