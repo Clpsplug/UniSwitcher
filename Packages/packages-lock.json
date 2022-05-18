@@ -1,7 +1,25 @@
 {
   "dependencies": {
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "9e2163616b9c527fa9461544e2bcc5f93fd12d83"
+    },
+    "com.svermeulen.extenject": {
+      "version": "https://github.com/starikcetin/Extenject.git#upm",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "8261b211687c43c40203c3e7dcdf9e0edfaf17a6"
+    },
     "com.unity.2d.animation": {
+<<<<<<< ours
       "version": "5.2.0",
+=======
+      "version": "5.2.1",
+>>>>>>> theirs
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -73,7 +91,11 @@
       "dependencies": {}
     },
     "com.unity.collab-proxy": {
+<<<<<<< ours
       "version": "1.15.15",
+=======
+      "version": "1.15.17",
+>>>>>>> theirs
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -98,7 +120,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
+<<<<<<< ours
       "version": "2.0.14",
+=======
+      "version": "2.0.15",
+>>>>>>> theirs
       "depth": 0,
       "source": "registry",
       "dependencies": {
