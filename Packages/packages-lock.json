@@ -15,11 +15,7 @@
       "hash": "8261b211687c43c40203c3e7dcdf9e0edfaf17a6"
     },
     "com.unity.2d.animation": {
-<<<<<<< ours
-      "version": "5.2.0",
-=======
       "version": "5.2.1",
->>>>>>> theirs
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -91,11 +87,7 @@
       "dependencies": {}
     },
     "com.unity.collab-proxy": {
-<<<<<<< ours
-      "version": "1.15.15",
-=======
       "version": "1.15.17",
->>>>>>> theirs
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -120,11 +112,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-<<<<<<< ours
-      "version": "2.0.14",
-=======
       "version": "2.0.15",
->>>>>>> theirs
       "depth": 0,
       "source": "registry",
       "dependencies": {
