@@ -109,7 +109,11 @@ namespace UniSwitcher.Infra
             var loadedLevel = _sceneLoader.LoadSceneAsync(
                 target.GetRawValue(),
                 isAdditive ? LoadSceneMode.Additive : LoadSceneMode.Single,
-                c => { c.Bind<T>().FromInstance(sceneData).AsSingle(); }
+                c =>
+                {
+                    c.Bind<StartedFromAnotherSceneMarker>().AsSingle();
+                    c.Bind<T>().FromInstance(sceneData).AsSingle();
+                }
             );
             while (!loadedLevel.isDone)
             {
