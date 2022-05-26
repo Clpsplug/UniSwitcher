@@ -17,7 +17,7 @@ Add these lines to your `manifest.json`:
 ```json
 {
   "dependencies": {
-    "com.clpsplug.uniswitcher": "https://github.com/clpsplug/uniswitcher.git",
+    "com.clpsplug.uniswitcher": "https://github.com/clpsplug/uniswitcher.git?path=Packages/com.clpsplug.uniswitcher",
     "com.coffee.git-dependency-resolver": "https://github.com/mob-sakai/GitDependencyResolverForUnity.git"
   }
 }
