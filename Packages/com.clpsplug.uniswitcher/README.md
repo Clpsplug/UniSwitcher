@@ -1,6 +1,12 @@
 # UniSwitcher
 
-Scene switcher &amp; data propagator wrapper for Unity3D
+Scene switcher &amp; data propagator wrapper for Unity3D. This plugin provides interfaces and classes to handle the following tasks in a controlled manner:
+* Parameter propagation between scenes (Wraps Zenject's SceneLoader)
+* Displaying **transition effects!**
+* **Triggering an initialization task** on the next scene using UniTask
+  * and holding the transition while initialization takes place
+  * Graceful initialization failure handling to prevent lock-ups
+* Scene loading progress display
 
 # Installing
 
