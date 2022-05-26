@@ -20,8 +20,21 @@ namespace UniSwitcher.Domain
         }
     }
 
+    /// <summary>
+    /// Extension class for <see cref="StartedFromAnotherSceneMarker"/>
+    /// </summary>
     public static class MarkerExtension
     {
+        /// <summary>
+        /// Returns true if the scene with this marker is started from another scene via UniSwitcher.
+        /// If this is false, it either means:
+        /// <list type="bullet">
+        /// <item>the Play Mode started from that scene or</item>
+        /// <item>the Scene change occurred outside of UniSwitcher.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="m">The marker itself - no need to pass an argument.</param>
+        /// <returns>True if the scene is started from another marker. If false, you may need to take action.</returns>
         public static bool HasStartedByAnotherScene(this StartedFromAnotherSceneMarker m)
         {
             return m != null;

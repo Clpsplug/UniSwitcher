@@ -279,7 +279,7 @@ namespace UniSwitcher
         {
             /* no-op */
         }
-        
+
         /// <summary>
         /// DO NOT OVERRIDE. Use <see cref="WillBeDestroyed"/> or <see cref="WasDestroyed"/>
         /// </summary>
@@ -304,12 +304,16 @@ namespace UniSwitcher
         /// <summary>
         /// Configuration for scene transition
         /// </summary>
+        /// <typeparam name="T">
+        /// Type of data to pass.
+        /// XXX: if no data, then specify object. Void not possible
+        /// </typeparam>
         /// <remarks>
         /// The point of this class is to be able to be used as a 'builder' class.
         /// You MAY extend this class to customize the configuration, but you SHOULD mark such classes 'sealed'
         /// to avoid any chaos and SHOULD NOT make more than one of them.
         /// </remarks>
-        public class SceneTransitionConfiguration<T> // XXX: if no data, then specify object. Void not possible
+        public class SceneTransitionConfiguration<T>
         {
             /// <summary>
             /// Destination
