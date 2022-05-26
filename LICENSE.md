@@ -1,0 +1,1 @@
+Packages/com.clpsplug.uniswitcher/LICENSE.md

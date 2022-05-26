@@ -10,6 +10,7 @@ namespace UniSwitcher.Domain
     /// <para>
     /// The implementations should get the data passed injected through the type of the data,
     /// but consider optional injection for testing purposes.
+    /// The entrypoint for a scene will not fire if Play Mode starts from that scene.
     /// </para>
     /// </summary>
     public interface ISceneEntryPoint
