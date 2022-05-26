@@ -2,7 +2,24 @@
 
 Scene switcher &amp; data propagator wrapper for Unity3D
 
-# Requirements
+# Installing
+
+## Using UPM
+
+Add this line to your `manifest.json`
+```
+  "com.clpsplug.uniswitcher": "https://github.com/clpsplug/uniswitcher.git"
+```
+
+This way is the easiest since you do not have to get the requirements - it will be done automatically.
+If you have those depencencies inside `Plugin` folder, you will need to delete those as you will run into duplicate issues.
+
+## Using Unity Package
+
+Head over to [the releases page](https://github.com/Clpsplug/UniSwitcher/releases) and download the latest .unitypackage file.  
+If you are taking this route, you will need to download the requirements yourself.
+
+### Requirements
 
 UniSwitcher requires the following plugins to work.  
 The versions are the earliest ones I personally checked with; it is possible that this still works with later versions.
