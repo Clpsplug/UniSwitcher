@@ -8,6 +8,11 @@ namespace UniSwitcher.Domain
     {
         private readonly string _rawValue;
         
+        protected string RawValue
+        {
+            get => _rawValue;
+        }
+        
         protected BaseScene(string rawValue)
         {
             _rawValue = rawValue;
