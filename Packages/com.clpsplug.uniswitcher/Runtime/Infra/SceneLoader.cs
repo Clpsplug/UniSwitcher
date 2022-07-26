@@ -107,7 +107,7 @@ namespace UniSwitcher.Infra
             }
 
             var loadedLevel = _sceneLoader.LoadSceneAsync(
-                target.GetRawValue(),
+                target.RawValue,
                 isAdditive ? LoadSceneMode.Additive : LoadSceneMode.Single,
                 c =>
                 {
@@ -121,14 +121,14 @@ namespace UniSwitcher.Infra
                 await UniTask.Yield();
             }
 
-            SceneManager.SetActiveScene(SceneManager.GetSceneByPath(target.GetRawValue()));
+            SceneManager.SetActiveScene(SceneManager.GetSceneByPath(target.RawValue));
             SetLoaded(target, true);
-            _currentScene = target.GetRawValue();
+            _currentScene = target.RawValue;
 
 #if UNITY_ANALYTICS
             if (Analytics.enabled && (!(target as IReportable)?.DoNotReport() ?? false))
             {
-                AnalyticsEvent.ScreenVisit(target.GetRawValue());
+                AnalyticsEvent.ScreenVisit(target.RawValue);
             }
 #endif
         }
@@ -144,13 +144,13 @@ namespace UniSwitcher.Infra
             try
             {
                 var unloadedLevel = SceneManager.UnloadSceneAsync(
-                    target.GetRawValue()
+                    target.RawValue
                 );
 
                 if (!IsLoaded(target))
                 {
                     Debug.LogWarning(
-                        $"Target {target.GetRawValue()} does not look loaded."
+                        $"Target {target.RawValue} does not look loaded."
                     );
                 }
 
@@ -186,7 +186,7 @@ namespace UniSwitcher.Infra
         {
             try
             {
-                return _loaded[target.GetRawValue()];
+                return _loaded[target.RawValue];
             }
             catch (KeyNotFoundException)
             {
@@ -196,7 +196,7 @@ namespace UniSwitcher.Infra
 
         private void SetLoaded(IScene target, bool loaded)
         {
-            _loaded[target.GetRawValue()] = loaded;
+            _loaded[target.RawValue] = loaded;
         }
 
         /// <inheritdoc cref="ISceneLoader.AddProgressUpdateDelegate"/>
@@ -251,7 +251,7 @@ namespace UniSwitcher.Infra
             else
             {
                 // If additive mode, that scene only is set as 'not loaded'
-                _loaded[destination.GetRawValue()] = false;
+                _loaded[destination.RawValue] = false;
             }
         }
     }
