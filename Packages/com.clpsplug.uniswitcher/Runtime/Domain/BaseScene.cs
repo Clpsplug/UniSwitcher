@@ -7,8 +7,8 @@ namespace UniSwitcher.Domain
     public abstract class BaseScene : IScene
     {
         private readonly string _rawValue;
-        
-        protected string RawValue
+
+        public string RawValue
         {
             get => _rawValue;
         }
@@ -16,11 +16,6 @@ namespace UniSwitcher.Domain
         protected BaseScene(string rawValue)
         {
             _rawValue = rawValue;
-        }
-        
-        public string GetRawValue()
-        {
-            return _rawValue;
         }
         
         public static bool operator ==(BaseScene a, BaseScene b) 
