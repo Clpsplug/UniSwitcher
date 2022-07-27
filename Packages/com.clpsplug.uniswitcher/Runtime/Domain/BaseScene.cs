@@ -1,3 +1,5 @@
+using System;
+
 namespace UniSwitcher.Domain
 {
     /// <summary>
@@ -12,6 +14,18 @@ namespace UniSwitcher.Domain
         {
             get => _rawValue;
         }
+
+#if UNITY_ANALYTICS||UGS_ANALYTICS
+        /// <inheritdoc cref="IScene.SuppressEvent"/>
+        public virtual bool SuppressEvent => false;
+#endif
+        
+#if UGS_ANALYTICS
+        /// <inheritdoc cref="IScene.ScreenVisitEventName"/>
+        public virtual string ScreenVisitEventName => null;
+        /// <inheritdoc cref="IScene.ScreenVisitEventPropertyName"/>
+        public virtual string ScreenVisitEventPropertyName => null;
+#endif
         
         protected BaseScene(string rawValue)
         {
