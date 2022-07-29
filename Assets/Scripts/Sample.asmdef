@@ -3,7 +3,9 @@
     "rootNamespace": "",
     "references": [
         "GUID:8b00993bcd7444647a13ccaa40289813",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:fe25561d224ed4743af4c60938a59d0b",
+        "GUID:5e0b455853cd340e0813387221dfd501"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -12,6 +14,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.services.analytics",
+            "expression": "4.0.0",
+            "define": "UGS_ANALYTICS"
+        }
+    ],
     "noEngineReferences": false
 }
