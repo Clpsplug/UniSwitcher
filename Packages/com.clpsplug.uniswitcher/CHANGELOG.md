@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Removed
+* ADVANCED.md file has been removed. Its content is now in [wiki](https://github.com/Clpsplug/UniSwitcher/wiki).
 
 ## [1.2.2]
 ### Added
