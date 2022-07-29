@@ -4,9 +4,7 @@
       "version": "file:com.clpsplug.uniswitcher",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {
-        "com.unity.test-framework": "1.1.31"
-      }
+      "dependencies": {}
     },
     "com.coffee.git-dependency-resolver": {
       "version": "https://github.com/mob-sakai/GitDependencyResolverForUnity.git",
