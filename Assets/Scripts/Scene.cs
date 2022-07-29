@@ -11,6 +11,9 @@ public class Scene : BaseScene
     // This part is initially disabled to prevent accidental use of your Unity Gaming Service Analytics event quota.
     // Include com.unity.services.analytics into this sample project to enable this part of the code.
 #if UGS_ANALYTICS
+    // NOTE: To see this part in action, you first need to link this sample project to your Unity Gaming Service
+    //       and set up Analytics for this project.
+    //       After that, in the Event Manager, add a custom event type with this name that has a property with the name here.
     public override string ScreenVisitEventName => "screenVisit";
     public override string ScreenVisitEventPropertyName => "screenName";
     public bool DoNotReport()
