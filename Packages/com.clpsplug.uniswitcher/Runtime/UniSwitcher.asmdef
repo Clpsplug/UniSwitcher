@@ -3,7 +3,9 @@
     "rootNamespace": "UniSwitcher",
     "references": [
         "Zenject",
-        "UniTask"
+        "UniTask",
+        "Unity.Services.Core",
+        "Unity.Services.Analytics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -12,6 +14,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.services.analytics",
+            "expression": "4.0.0",
+            "define": "UGS_ANALYTICS"
+        }
+    ],
     "noEngineReferences": false
 }
