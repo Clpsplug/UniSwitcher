@@ -26,10 +26,10 @@ Add these lines to your `manifest.json`:
 This way is the easiest since you do not have to get the requirements - it will be done automatically.
 If you have the depencencies mentioned below inside your `Plugin` folder, you will need to delete those as you will run into duplicate issues.
 
-## Using Unity Package
+## From this repository
 
-Head over to [the releases page](https://github.com/Clpsplug/UniSwitcher/releases) and download the latest .unitypackage file.  
-If you are taking this route, you will need to download the requirements yourself.
+Although not recommended, you can copy the content of `Packages/com.clpsplug.uniswitcher`.
+If you are taking this route, you need to get the dependencies yourself.
 
 ### Requirements & Dependencies
 

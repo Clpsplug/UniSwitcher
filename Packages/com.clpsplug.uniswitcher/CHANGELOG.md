@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Pinned UniTask to 2.3.1
 
+### Removed
+* UnityPackage support. Please use UPM instead.
+
 ## [1.2.3]
 ### Added
 * Pre-release support for Unity Gaming Services Analytics!
