@@ -12,13 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Pinned UniTask to 2.3.1
 
-### Removed
-
 ## [1.2.3]
 ### Added
 * Pre-release support for Unity Gaming Services Analytics!
-
-### Changed
 
 ### Removed
 * ADVANCED.md file has been removed. Its content is now in [wiki](https://github.com/Clpsplug/UniSwitcher/wiki).
