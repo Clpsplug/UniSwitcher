@@ -1,6 +1,6 @@
 {
   "name": "com.clpsplug.uniswitcher",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Scene transition task wrapper based on Zenject",
   "displayName": "UniSwitcher",
   "unity": "2020.1",
