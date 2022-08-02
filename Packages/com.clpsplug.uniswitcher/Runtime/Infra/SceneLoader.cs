@@ -159,7 +159,7 @@ namespace UniSwitcher.Infra
             }
 #endif
 #if UGS_ANALYTICS
-            if (!string.IsNullOrEmpty(target.ScreenVisitEventName) && !string.IsNullOrEmpty(target.ScreenVisitEventPropertyName))
+            if (!string.IsNullOrEmpty(target.ScreenVisitEventName) && !string.IsNullOrEmpty(target.ScreenVisitEventParameterName))
             {
                 switch (target)
                 {
@@ -173,7 +173,7 @@ namespace UniSwitcher.Infra
                     default:
                         Debug.LogWarning(
                             $"Heads up! Your Scene definition ({target.GetType().Name}) does not implement IReportable; the event was not sent to prevent unexpectedly using up your event quota.\n" 
-                            + $"Since you have overridden both {nameof(target.ScreenVisitEventName)} and {nameof(target.ScreenVisitEventPropertyName)}, you probably intend to use UGS Analytics.\n"
+                            + $"Since you have overridden both {nameof(target.ScreenVisitEventName)} and {nameof(target.ScreenVisitEventParameterName)}, you probably intend to use UGS Analytics.\n"
                             + "Please implement IReportable to start sending the events.\n"
                             + "For more information, refer to https://github.com/Clpsplug/UniSwitcher/wiki/UGS-Analytics for details."
                         );
@@ -183,7 +183,7 @@ namespace UniSwitcher.Infra
             else
             {
                 Debug.LogWarning(
-                    $"Heads up! You have UGS Analytics package in this project, but your screen definition does not implement either (or both) of {nameof(target.ScreenVisitEventName)} or {nameof(target.ScreenVisitEventPropertyName)}.\n"
+                    $"Heads up! You have UGS Analytics package in this project, but your screen definition does not implement either (or both) of {nameof(target.ScreenVisitEventName)} or {nameof(target.ScreenVisitEventParameterName)}.\n"
                     + $"If you want UniSwitcher to report 'Screen Visit' events, please override both and implement IReportable into your Scene definition ({target.GetType().Name}.)\n"
                     + $"If you don't, but you still want to include UGS Analytics, please override {nameof(target.SuppressEvent)} and set it to true.\n"
                     + $"If you didn't mean to use Analytics in your project, consider removing com.unity.services.analytics package from this project."
@@ -198,7 +198,7 @@ namespace UniSwitcher.Infra
             AnalyticsService.Instance.CustomData(
                 target.ScreenVisitEventName, 
     new Dictionary<string,object> {
-                    {target.ScreenVisitEventPropertyName, target.RawValue}
+                    {target.ScreenVisitEventParameterName, target.RawValue},
                 }
             );
         }

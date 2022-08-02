@@ -15,7 +15,7 @@ public class Scene : BaseScene
     //       and set up Analytics for this project.
     //       After that, in the Event Manager, add a custom event type with this name that has a property with the name here.
     public override string ScreenVisitEventName => "screenVisit";
-    public override string ScreenVisitEventPropertyName => "screenName";
+    public override string ScreenVisitEventParameterName => "screenName";
     public bool DoNotReport()
     {
         return false;
