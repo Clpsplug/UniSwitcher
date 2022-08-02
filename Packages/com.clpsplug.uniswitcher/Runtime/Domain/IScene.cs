@@ -1,3 +1,5 @@
+using System;
+
 namespace UniSwitcher.Domain
 {
     /// <summary>
@@ -13,7 +15,7 @@ namespace UniSwitcher.Domain
 #if UNITY_ANALYTICS || UGS_ANALYTICS
         /// <summary>
         /// If true, suppresses warning raised whenever you don't implement <see cref="IReportable"/>
-        /// and/or (in case of Unity Gaming Service Analytics) override <see cref="ScreenVisitEventName"/> and <see cref="ScreenVisitEventPropertyName"/>.
+        /// and/or (in case of Unity Gaming Service Analytics) override <see cref="ScreenVisitEventName"/> and <see cref="ScreenVisitEventParameterName"/>.
         /// </summary>
         bool SuppressEvent { get; }
 #endif
@@ -31,6 +33,9 @@ namespace UniSwitcher.Domain
         /// If this or <see cref="ScreenVisitEventName"/> is null or the Scene definition doesn't implement <see cref="IReportable"/>,
         /// UniSwitcher will not send the event.
         /// </summary>
+        string ScreenVisitEventParameterName { get; }
+        
+        [Obsolete("Please use ScreenVisitEventParameterName instead. This method was a typo.")]
         string ScreenVisitEventPropertyName { get; }
 #endif
     }

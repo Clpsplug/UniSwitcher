@@ -19,21 +19,27 @@ namespace UniSwitcher.Domain
         /// <inheritdoc cref="IScene.SuppressEvent"/>
         public virtual bool SuppressEvent => false;
 #endif
-        
+
 #if UGS_ANALYTICS
         /// <inheritdoc cref="IScene.ScreenVisitEventName"/>
         public virtual string ScreenVisitEventName => null;
-        /// <inheritdoc cref="IScene.ScreenVisitEventPropertyName"/>
+
+        /// <inheritdoc cref="IScene.ScreenVisitEventParameterName"/>
+#pragma warning disable CS0618
+        public virtual string ScreenVisitEventParameterName => ScreenVisitEventPropertyName;
+#pragma warning restore CS0618
+
+        [Obsolete("Please use ScreenVisitEventParameterName instead. This method was a typo.")]
         public virtual string ScreenVisitEventPropertyName => null;
 #endif
-        
+
         protected BaseScene(string rawValue)
         {
             _rawValue = rawValue;
         }
-        
-        public static bool operator ==(BaseScene a, BaseScene b) 
-        { 
+
+        public static bool operator ==(BaseScene a, BaseScene b)
+        {
             // null == null
             if (ReferenceEquals(a, null) && ReferenceEquals(b, null)) return true;
             // If either one is null but NOT both are non-null
