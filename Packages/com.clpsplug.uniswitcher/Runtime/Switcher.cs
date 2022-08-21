@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniSwitcher.Domain;
 using UniSwitcher.Infra;
@@ -19,6 +21,8 @@ namespace UniSwitcher
         /// </summary>
         [SerializeField] [Tooltip("Can be null. If your scene have one, assign it here.")]
         protected ProgressDisplayController sceneProgressBarController = default;
+
+        private CancellationTokenSource _token;
 
 #pragma warning disable 649
         [Inject] private IBootStrapper _bootStrapper;
@@ -93,12 +97,30 @@ namespace UniSwitcher
         }
 
         /// <summary>
-        /// Performs scene transition.
+        /// Performs scene transition. It calls <see cref="PerformSceneTransitionWithoutSuppression{T}"/> internally,
+        /// but this call is recommended because it will suppress <see cref="OperationCanceledException"/>
+        /// that would be thrown on application quit otherwise.
         /// </summary>
         /// <param name="config">Using <see cref="ChangeScene"/> or <see cref="AddScene"/> is recommended.</param>
         /// <returns></returns>
         protected async UniTask PerformSceneTransition<T>(SceneTransitionConfiguration<T> config)
         {
+            await PerformSceneTransitionWithoutSuppression(config).SuppressCancellationThrow();
+        }
+
+        /// <summary>
+        /// Performs scene transition. This is meant to be an Internal implementation of <see cref="PerformSceneTransition{T}"/>,
+        /// but you can still use this yourself. Remember, this will throw <see cref="OperationCanceledException"/>
+        /// if your application quits during this method is being called.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <typeparam name="T"></typeparam>
+        [SuppressMessage("ReSharper", "Unity.PerformanceCriticalCodeInvocation")]
+        protected async UniTask PerformSceneTransitionWithoutSuppression<T>(SceneTransitionConfiguration<T> config)
+        {
+            _token = new CancellationTokenSource();
+            var token = _token.Token;
+            token.ThrowIfCancellationRequested();
             if (config.PerformTransition && TransitionBackgroundController == null)
             {
                 Debug.LogWarning(
@@ -110,10 +132,10 @@ namespace UniSwitcher
 
             if (config.PerformTransition && TransitionBackgroundController != null)
             {
-                while (TransitionBackgroundController.GetTransitionState() != TransitionState.Ready)
-                {
-                    await UniTask.Yield();
-                }
+                await UniTask.WaitWhile(
+                    () => TransitionBackgroundController.GetTransitionState() != TransitionState.Ready,
+                    cancellationToken: token
+                );
             }
 
             if (!config.IsAdditive)
@@ -133,11 +155,11 @@ namespace UniSwitcher
                 if (config.PerformTransition && TransitionBackgroundController != null)
                 {
                     TransitionBackgroundController.TriggerTransitionIn(config);
-                    await UniTask.Delay(TimeSpan.FromSeconds(0.1));
-                    while (TransitionBackgroundController.GetTransitionState() == TransitionState.In)
-                    {
-                        await UniTask.Yield();
-                    }
+                    await UniTask.Delay(TimeSpan.FromSeconds(0.1), cancellationToken: token);
+                    await UniTask.WaitWhile(
+                        () => TransitionBackgroundController.GetTransitionState() == TransitionState.In,
+                        cancellationToken: token
+                    );
                 }
 
                 _sceneLoader.LoadScene(config.DestinationScene, config.IsAdditive,
@@ -151,28 +173,24 @@ namespace UniSwitcher
                 {
                     // In case of delayed transition, trigger transition 1 second before scene change
                     TransitionBackgroundController.TriggerTransitionIn(config);
-                    await UniTask.Delay(TimeSpan.FromSeconds(config.Delay - 1));
-                    while (TransitionBackgroundController.GetTransitionState() == TransitionState.In)
-                    {
-                        await UniTask.Yield();
-                    }
+                    await UniTask.Delay(TimeSpan.FromSeconds(config.Delay - 1), cancellationToken: token);
+                    await UniTask.WaitWhile(
+                        () => TransitionBackgroundController.GetTransitionState() == TransitionState.In,
+                        cancellationToken: token
+                    );
                 }
             }
 
-            while (!_sceneLoader.IsLoaded(config.DestinationScene) ||
-                   (TransitionBackgroundController != null && config.PerformTransition &&
-                    !TransitionBackgroundController.IsTransitionAllowed()))
-            {
-                await UniTask.Yield();
-            }
+            await UniTask.WaitWhile(() =>
+                    !_sceneLoader.IsLoaded(config.DestinationScene) ||
+                    (TransitionBackgroundController != null && config.PerformTransition &&
+                     !TransitionBackgroundController.IsTransitionAllowed()),
+                cancellationToken: token
+            );
 
             TransitionBackgroundController?.DetectMainCamera();
 
-            var entryPointTask = _bootStrapper.TriggerEntryPoint();
-            while (entryPointTask.Status == UniTaskStatus.Pending)
-            {
-                await UniTask.Yield();
-            }
+            await _bootStrapper.TriggerEntryPoint();
 
             if (!config.SuppressProgressBar && sceneProgressBarController != null)
             {
@@ -299,6 +317,11 @@ namespace UniSwitcher
         protected virtual void WasDestroyed()
         {
             /* no-op */
+        }
+
+        private void OnApplicationQuit()
+        {
+            _token?.Cancel();
         }
 
         /// <summary>
