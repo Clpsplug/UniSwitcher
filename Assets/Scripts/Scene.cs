@@ -8,6 +8,8 @@ public class Scene : BaseScene
     public static Scene FirstScene => new Scene("Assets/Scenes/SampleScene.unity");
     public static Scene SecondScene => new Scene("Assets/Scenes/SecondScene.unity");
 
+    public static Scene TestScene => new Scene("Assets/Scenes/TestScene.unity");
+
     // This part is initially disabled to prevent accidental use of your Unity Gaming Service Analytics event quota.
     // Include com.unity.services.analytics into this sample project to enable this part of the code.
 #if UGS_ANALYTICS

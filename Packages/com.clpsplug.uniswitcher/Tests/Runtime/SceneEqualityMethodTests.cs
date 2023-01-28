@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UniSwitcher.Domain;
+using UniSwitcher.Tests.Runtime.TestStubs;
 
 namespace UniSwitcher.Tests.Runtime
 {
