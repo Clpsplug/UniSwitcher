@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using UniSwitcher.Domain;
 using UniSwitcher.Infra;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -116,8 +117,23 @@ namespace UniSwitcher
         /// <param name="config"></param>
         /// <typeparam name="T"></typeparam>
         [SuppressMessage("ReSharper", "Unity.PerformanceCriticalCodeInvocation")]
+        // ReSharper disable once MemberCanBePrivate.Global
         protected async UniTask PerformSceneTransitionWithoutSuppression<T>(SceneTransitionConfiguration<T> config)
         {
+            // If users forget to add this scene to the Build Settings, crash early so that they won't see Zenject's assertion error outta nowhere.
+            if (!Application.CanStreamedLevelBeLoaded(config.DestinationScene.RawValue))
+            {
+                // Redundant logging in the case of extremely bad coding practice
+                // where this method call chain is within a blanket-catch clause (i.e. catch (Exception e))
+                Debug.LogError(
+                    $"Whoa! Seems like you forgot to include this scene ({config.DestinationScene.RawValue}) into your Build Settings! You need to add it for this thing to work."
+                );
+                Assert.IsTrue(
+                    false,
+                    $"WHOA! Seems like you forgot to include this scene ({config.DestinationScene.RawValue}) into your Build Settings! You need to add it for this thing to work."
+                );
+            }
+
             _token = new CancellationTokenSource();
             var token = _token.Token;
             token.ThrowIfCancellationRequested();
@@ -168,7 +184,7 @@ namespace UniSwitcher
             else
             {
                 _sceneLoader.LoadSceneWithDelay(config.DestinationScene, config.Delay, config.IsAdditive,
-                    config.DataToTransfer);
+                    config.DataToTransfer, cancellationToken: token);
                 if (config.PerformTransition && TransitionBackgroundController != null)
                 {
                     // In case of delayed transition, trigger transition 1 second before scene change

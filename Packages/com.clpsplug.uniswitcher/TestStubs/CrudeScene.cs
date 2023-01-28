@@ -1,6 +1,6 @@
 using UniSwitcher.Domain;
 
-namespace UniSwitcher.Tests.Runtime
+namespace UniSwitcher.Tests.Runtime.TestStubs
 {
 	public class CrudeScene : BaseScene
 	{

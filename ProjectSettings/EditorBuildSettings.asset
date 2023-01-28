@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SecondScene.unity
     guid: dd8ed234e41b74277965b21649661430
+  - enabled: 1
+    path: Packages/com.clpsplug.uniswitcher/TestStubs/UnitTestScene1.unity
+    guid: 5053cbbf0e1be4f08bb8e738326d8145
+  - enabled: 1
+    path: Packages/com.clpsplug.uniswitcher/TestStubs/UnitTestScene2.unity
+    guid: 8eeb1ac9a9cf54ac1b87232aeff9b6ce
   m_configObjects: {}
